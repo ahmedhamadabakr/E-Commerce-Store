@@ -1,3 +1,5 @@
+// Product API only. Authentication is handled in src/app/api/auth/[...nextauth]/route.js
+// Native MongoDB connection utility. Used by next-auth and other APIs.
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { ObjectId } from "mongodb"; // to replace id to object

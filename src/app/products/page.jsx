@@ -1,16 +1,22 @@
+"use client";
 import Card from "../card/card";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
-export default async function ProductsPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+export default function ProductsPage() {
+  const [products, setProducts] = useState([]);
 
-  let products = [];
-  try {
-    const res = await axios.get(`${baseUrl}/api/products`);
-    products = res.data;
-  } catch (e) {
-    products = [];
-  }
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("/api/products");
+        setProducts(res.data);
+      } catch {
+        setProducts([]);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-16">

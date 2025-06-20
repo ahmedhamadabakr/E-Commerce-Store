@@ -1,11 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
@@ -118,7 +121,7 @@ export default function Navbar() {
             <ul className="flex flex-col gap-2 mt-2 mb-4 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
               {navItems.map((item, index) => (
                 <li
-                  key={index}
+                  key={item.href}
                   className={`flex items-center p-1 text-lg gap-x-2 hover:text-blue-500 ${
                     pathname === item.href
                       ? "text-blue-700 font-bold"
@@ -130,11 +133,20 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <button className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-md">
-                  Login
-                </button>
-              </li>
+              {status !== "loading" && status === "authenticated" && (
+                <li key="cart">
+                  <Link href="/cart" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-2">Cart</Link>
+                </li>
+              )}
+              {status !== "loading" && (
+                <li key="auth">
+                  {status === "authenticated" ? (
+                    <button onClick={() => signOut()} className="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded-md">Logout</button>
+                  ) : (
+                    <button onClick={() => router.push('/login')} className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-md">Login</button>
+                  )}
+                </li>
+              )}
             </ul>
           </div>
         </div>

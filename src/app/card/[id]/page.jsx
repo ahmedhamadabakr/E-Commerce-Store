@@ -1,26 +1,47 @@
-import ProductsPage from "@/app/products/page";
+"use client";
+import { use } from "react";
 import ImageSlider from "./ImageSlider";
 import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 
-async function getProduct(id) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  try {
-    const res = await axios.get(`${baseUrl}/api/products?id=${id}`);
-    return res.data;
-  } catch (error) {
-    return null;
-  }
-}
+export default function ProductDetailPage({ params }) {
+  const { id } = use(params);
+  const { data: session, status } = useSession();
+  const [product, setProduct] = useState(null);
+  const [added, setAdded] = useState(false);
 
-export default async function ProductDetailPage({ params }) {
-  const { id } = await params;
-  const product = await getProduct(id);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      try {
+        const res = await axios.get(`${baseUrl}/api/products?id=${id}`);
+        setProduct(res.data);
+      } catch {
+        setProduct(null);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
   if (!product || product.success === false) {
     return (
       <div className="text-center text-red-500 py-10">Product not found</div>
     );
   }
+
+  const handleAddToCart = () => {
+    if (typeof window !== "undefined") {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      cart.push({
+        id: product._id,
+        title: product.title,
+        price: product.price,
+      });
+      localStorage.setItem("cart", JSON.stringify(cart));
+      setAdded(true);
+    }
+  };
 
   return (
     <>
@@ -56,10 +77,29 @@ export default async function ProductDetailPage({ params }) {
                 {product.category}
               </span>
             </div>
+            {/* Add to Cart Button */}
+            {status === "authenticated" ? (
+              <>
+                <button
+                  onClick={handleAddToCart}
+                  className="mt-4 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                >
+                  Add to Cart
+                </button>
+                {added && (
+                  <div className="text-green-600 mt-2">
+                    تمت الإضافة إلى السلة!
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="mt-4 text-red-500">
+                You must be logged in to add to cart.
+              </div>
+            )}
           </div>
         </div>
       </div>
-      <ProductsPage />
     </>
   );
 }

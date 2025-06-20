@@ -1,17 +1,8 @@
+"use client";
 import Link from "next/link";
 import ProductsPage from "./products/page";
-import axios from "axios";
 
-export default async function Home() {
-  // جلب المنتجات من API
-  let products = [];
-  try {
-    const res = await axios.get("/api/products");
-    products = res.data;
-  } catch (e) {
-    products = [];
-  }
-
+export default function Home() {
   return (
     <>
       <section className="relative h-[600px] bg-gradient-to-r from-blue-600 to-blue-800">
