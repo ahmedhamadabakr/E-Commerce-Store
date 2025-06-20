@@ -1,11 +1,14 @@
 import Image from "next/image";
+import axios from "axios";
 
 async function getProduct(id) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/products?id=${id}`, {
-    cache: "no-store"
-  });
-  if (!res.ok) return null;
-  return res.json();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  try {
+    const res = await axios.get(`${baseUrl}/api/products?id=${id}`);
+    return res.data;
+  } catch (error) {
+    return null;
+  }
 }
 
 export default async function ProductDetailPage({ params }) {
@@ -13,7 +16,7 @@ export default async function ProductDetailPage({ params }) {
   const product = await getProduct(id);
 
   if (!product || product.success === false) {
-    return <div className="text-center text-red-500 py-10">المنتج غير موجود</div>;
+    return <div className="text-center text-red-500 py-10">Product not found</div>;
   }
 
   return (
@@ -25,7 +28,9 @@ export default async function ProductDetailPage({ params }) {
       )}
       <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
       <p className="text-gray-700 mb-4">{product.description}</p>
-      <div className="text-xl font-semibold text-blue-600 mb-2">{product.price} $</div>
+      <div className="text-xl font-semibold text-blue-600 mb-2">Price: {product.price} $</div>
+      <div className="mb-2">Quantity: <span className="font-semibold">{product.quantity}</span></div>
+      <div className="mb-4">Category: <span className="font-semibold">{product.category}</span></div>
     </div>
   );
 } 

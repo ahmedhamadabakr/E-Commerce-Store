@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
+import axios from "axios";
 
 export default function AddProduct() {
   const MAX_PHOTOS = 4;
@@ -63,32 +64,27 @@ export default function AddProduct() {
         form.photos.forEach((file, idx) => {
           fd.append("photos", file);
         });
-        res = await fetch("/api/products", {
-          method: "POST",
-          body: fd,
+        res = await axios.post("/api/products", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
       } else {
         // Send as JSON
-        res = await fetch("/api/products", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title: form.title,
-            description: form.description,
-            price: form.price,
-            quantity: form.quantity,
-            category: form.category,
-            photos: [],
-          }),
+        res = await axios.post("/api/products", {
+          title: form.title,
+          description: form.description,
+          price: form.price,
+          quantity: form.quantity,
+          category: form.category,
+          photos: [],
         });
       }
-      const data = await res.json();
+      const data = await res.data;
       if (data.success) {
         setMessage("Product saved successfully!");
         setForm({ title: "", description: "", price: "", quantity: "", category: "", photos: [] });
         setPreviews([]);
       } else {
-        setMessage("Error: " + (data.error || "Failed to save product."));
+        setMessage("Error saving product. Please try again.");
       }
     } catch (err) {
       setMessage("Error: " + err.message);
