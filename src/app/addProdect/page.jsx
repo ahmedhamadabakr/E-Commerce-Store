@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import axios from "axios";
+import ImagePreviewGrid from "../components/ImagePreviewGrid";
 
 export default function AddProduct() {
   const MAX_PHOTOS = 4;
@@ -81,7 +82,14 @@ export default function AddProduct() {
       const data = await res.data;
       if (data.success) {
         setMessage("Product saved successfully!");
-        setForm({ title: "", description: "", price: "", quantity: "", category: "", photos: [] });
+        setForm({
+          title: "",
+          description: "",
+          price: "",
+          quantity: "",
+          category: "",
+          photos: [],
+        });
         setPreviews([]);
       } else {
         setMessage("Error saving product. Please try again.");
@@ -124,7 +132,7 @@ export default function AddProduct() {
             type="number"
             value={form.price}
             onChange={handleChange}
-            placeholder="Price (USD)"
+            placeholder="Price"
             required
             min={0}
             className="input input-bordered w-full border-blue-200 rounded-xl p-4 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
@@ -166,28 +174,7 @@ export default function AddProduct() {
           />
         </label>
 
-        {previews.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2">
-            {previews.map((src, idx) => (
-              <div key={idx} className="relative group">
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhoto(idx)}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-80 hover:opacity-100 shadow-lg transition-all text-lg font-bold group-hover:scale-110"
-                  title="Remove image"
-                >
-                  &times;
-                </button>
-                <img
-                  src={src}
-                  alt={"`Product Image ${idx + 1}`"}
-                  className="w-24 h-24 object-cover rounded-xl border shadow-md hover:scale-105 transition-transform duration-200"
-                />
-              </div>
-            ))}
-          </div>
-        )}
-
+        <ImagePreviewGrid previews={previews} onRemove={handleRemovePhoto} />
         <button
           type="submit"
           disabled={loading}
@@ -196,7 +183,13 @@ export default function AddProduct() {
           {loading ? "Saving..." : "Publish Product"}
         </button>
         {message && (
-          <div className={`text-center mt-4 font-semibold ${message.startsWith("Error") ? "text-red-600" : "text-green-700"}`}>{message}</div>
+          <div
+            className={`text-center mt-4 font-semibold ${
+              message.startsWith("Error") ? "text-red-600" : "text-green-700"
+            }`}
+          >
+            {message}
+          </div>
         )}
       </form>
     </div>
