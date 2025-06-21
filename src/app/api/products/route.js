@@ -3,8 +3,47 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { ObjectId } from "mongodb"; // to replace id to object
-
 import { getDb } from "@/utils/mongodb";
+import { getServerSession } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { getUsersCollection } from "@/utils/mongodb";
+import bcrypt from "bcryptjs";
+
+// Create authOptions inline since it's not exported from the NextAuth route
+const authOptions = {
+  providers: [  
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const users = await getUsersCollection();
+        const user = await users.findOne({ email: credentials.email });
+        if (!user) throw new Error("No user found");
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) throw new Error("Invalid password");
+        return { id: user._id.toString(), email: user.email, name: user.firstName + ' ' + user.lastName };
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.sub || token.id;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,6 +52,14 @@ cloudinary.config({
 });
 
 export async function POST(req) {
+  // Admin authorization
+  const session = await getServerSession(authOptions);
+  const adminEmails = ['ahmedhamadabakr77@gmail.com'];
+  const userEmail = session?.user?.email;
+  const isAdmin = session && adminEmails.includes(userEmail);
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  }
   try {
     let data = {};
     let photoUrls = [];

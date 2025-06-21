@@ -37,6 +37,11 @@ export default function Navbar() {
     { name: "Products", href: "/products", icon: Package },
   ];
 
+  // Add Profile to navigation if authenticated
+  if (status === "authenticated") {
+    navItems.push({ name: "Profile", href: "/profile", icon: User });
+  }
+
   const handleAuthClick = () => {
     if (status === "authenticated") {
       signOut();
@@ -44,6 +49,9 @@ export default function Navbar() {
       router.push('/login');
     }
   };
+
+  const isAdmin = status === "authenticated" && session?.user?.email && 
+    ['ahmedhamadabakr77@gmail.com'].includes(session.user.email);
 
   return (
     <>
@@ -91,18 +99,41 @@ export default function Navbar() {
                   </Link>
                 );
               })}
+              {/* Add Product button for admin */}
+              {isAdmin && (
+                <Link
+                  href="/addProdect"
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    pathname === '/addProdect'
+                      ? 'text-green-700 bg-green-50'
+                      : 'text-green-700 hover:text-green-800 hover:bg-green-50'
+                  }`}
+                >
+                  <span className="font-bold">+ Add Product</span>
+                </Link>
+              )}
             </div>
 
             {/* Desktop Auth & Cart */}
             <div className="hidden lg:flex items-center space-x-4">
               {status === "authenticated" && (
-                <Link 
-                  href="/cart"
-                  className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                  <span>Cart</span>
-                </Link>
+                <>
+                  <Link 
+                    href="/cart"
+                    className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>Cart</span>
+                  </Link>
+                  
+                  <Link 
+                    href="/profile"
+                    className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Profile</span>
+                  </Link>
+                </>
               )}
               
               <button
@@ -182,6 +213,20 @@ export default function Navbar() {
                     </Link>
                   );
                 })}
+                {/* Add Product button for admin (mobile) */}
+                {isAdmin && (
+                  <Link
+                    href="/addProdect"
+                    onClick={toggleMobileMenu}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      pathname === '/addProdect'
+                        ? 'text-green-700 bg-green-50'
+                        : 'text-green-700 hover:text-green-800 hover:bg-green-50'
+                    }`}
+                  >
+                    <span className="font-bold">+ Add Product</span>
+                  </Link>
+                )}
               </div>
 
               {/* User Actions */}
@@ -200,6 +245,16 @@ export default function Navbar() {
                       <ShoppingCart className="w-5 h-5" />
                       <span>Shopping Cart</span>
                     </Link>
+                    
+                    <Link
+                      href="/profile"
+                      onClick={toggleMobileMenu}
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <span>My Profile</span>
+                    </Link>
+                    
                     <button
                       onClick={() => {
                         signOut();
