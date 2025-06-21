@@ -1,156 +1,250 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { Menu, X, ShoppingCart, User, Home, Info, Package } from "lucide-react";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Navigation items array
+  // Navigation items array with icons
   const navItems = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "products", href: "/products" },
+    { name: "Home", href: "/", icon: Home },
+    { name: "About", href: "/about", icon: Info },
+    { name: "Products", href: "/products", icon: Package },
   ];
 
+  const handleAuthClick = () => {
+    if (status === "authenticated") {
+      signOut();
+    } else {
+      router.push('/login');
+    }
+  };
+
   return (
-    <div>
-      <nav className="block w-full max-w-screen px-4 py-4 mx-auto bg-slate-100 bg-opacity-90 sticky top-3 shadow lg:px-8 backdrop-blur-lg backdrop-saturate-150 z-[9999]">
-        <div className="container flex flex-wrap items-center justify-between mx-auto text-slate-800">
-          <Link
-            href="/"
-            className="mr-4 block cursor-pointer py-1.5 text-blue-600 font-bold text-2xl"
-          >
-            Ecommerce
-          </Link>
+    <>
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={toggleMobileMenu}
+        />
+      )}
 
-          <div className="lg:hidden">
-            <button
-              className="relative ml-auto h-6 max-h-[40px] w-6 max-w-[40px] select-none rounded-lg text-center align-middle text-xs font-medium uppercase text-inherit transition-all hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-              onClick={toggleMobileMenu}
-              type="button"
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled 
+          ? 'bg-white/95 backdrop-blur-md shadow-lg' 
+          : 'bg-white/90 backdrop-blur-sm'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            
+            {/* Logo */}
+            <Link
+              href="/"
+              className="flex items-center space-x-2 text-blue-600 font-bold text-xl hover:text-blue-700 transition-colors"
             >
-              <span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  ></path>
-                </svg>
-              </span>
-            </button>
-          </div>
+              <Package className="w-8 h-8" />
+              <span>Ecommerce</span>
+            </Link>
 
-          {/* Mobile Menu */}
-          <div
-            className={`fixed top-0 left-0 min-h-screen w-64 bg-slate-100 shadow-lg transform transition-transform duration-300 ease-in-out ${
-              isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            } lg:hidden z-50`}
-          >
-            <div className="flex flex-row items-center border-b pb-4">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-8">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      pathname === item.href
+                        ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Desktop Auth & Cart */}
+            <div className="hidden lg:flex items-center space-x-4">
+              {status === "authenticated" && (
+                <Link 
+                  href="/cart"
+                  className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>Cart</span>
+                </Link>
+              )}
+              
+              <button
+                onClick={handleAuthClick}
+                className={`flex items-center space-x-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                  status === "authenticated"
+                    ? 'bg-red-600 hover:bg-red-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                <span>{status === "authenticated" ? "Logout" : "Login"}</span>
+              </button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden">
+              <button
+                onClick={toggleMobileMenu}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors"
+                aria-expanded="false"
+              >
+                <span className="sr-only">Open main menu</span>
+                {isMobileMenuOpen ? (
+                  <X className="block h-6 w-6" />
+                ) : (
+                  <Menu className="block h-6 w-6" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className={`lg:hidden transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <div className="fixed top-0 left-0 h-full w-80 max-w-[80vw] bg-white shadow-xl z-50">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <Link
                 href="/"
-                className="cursor-pointer text-blue-600 font-bold text-xl pt-4 ps-4"
+                className="flex items-center space-x-2 text-blue-600 font-bold text-lg"
+                onClick={toggleMobileMenu}
               >
-                Ecommerce
+                <Package className="w-6 h-6" />
+                <span>Ecommerce</span>
               </Link>
               <button
                 onClick={toggleMobileMenu}
-                className="absolute top-4 right-4 text-slate-600 hover:text-blue-500"
+                className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="h-6 w-6" />
               </button>
             </div>
-            <ul className="flex flex-col h-full gap-4 p-4">
-              {navItems.map((item, index) => (
-                <li
-                  key={index}
-                  className={`flex items-center p-1 text-lg gap-x-2 hover:text-blue-500 ${
-                    pathname === item.href
-                      ? "text-blue-700 font-bold"
-                      : "text-slate-600"
-                  }`}
-                >
-                  <Link
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                    }}
-                    href={item.href}
-                    className="flex items-center"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-              <li className="mt-4">
-                <button className="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-500">
-                  Login
-                </button>
-              </li>
-            </ul>
-          </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:block">
-            <ul className="flex flex-col gap-2 mt-2 mb-4 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-              {navItems.map((item, index) => (
-                <li
-                  key={item.href}
-                  className={`flex items-center p-1 text-lg gap-x-2 hover:text-blue-500 ${
-                    pathname === item.href
-                      ? "text-blue-700 font-bold"
-                      : "text-slate-600"
-                  }`}
-                >
-                  <Link href={item.href} className="flex items-center">
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-              {status !== "loading" && status === "authenticated" && (
-                <li key="cart">
-                  <Link href="/cart" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mr-2">Cart</Link>
-                </li>
+            <div className="px-4 py-6 space-y-4">
+              {/* Navigation Links */}
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Navigation
+                </h3>
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={toggleMobileMenu}
+                      className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                        pathname === item.href
+                          ? 'text-blue-600 bg-blue-50'
+                          : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* User Actions */}
+              <div className="space-y-2 pt-4 border-t border-gray-200">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Account
+                </h3>
+                
+                {status === "authenticated" ? (
+                  <>
+                    <Link
+                      href="/cart"
+                      onClick={toggleMobileMenu}
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      <span>Shopping Cart</span>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        toggleMobileMenu();
+                      }}
+                      className="flex items-center space-x-3 w-full px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <span>Logout</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      router.push('/login');
+                      toggleMobileMenu();
+                    }}
+                    className="flex items-center space-x-3 w-full px-3 py-2 rounded-md text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                  >
+                    <User className="w-5 h-5" />
+                    <span>Login</span>
+                  </button>
+                )}
+              </div>
+
+              {/* User Info */}
+              {status === "authenticated" && session?.user && (
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-medium text-gray-900">
+                      Welcome, {session.user.name || session.user.email}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {session.user.email}
+                    </p>
+                  </div>
+                </div>
               )}
-              {status !== "loading" && (
-                <li key="auth">
-                  {status === "authenticated" ? (
-                    <button onClick={() => signOut()} className="bg-red-600 hover:bg-red-500 text-white px-8 py-2 rounded-md">Logout</button>
-                  ) : (
-                    <button onClick={() => router.push('/login')} className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2 rounded-md">Login</button>
-                  )}
-                </li>
-              )}
-            </ul>
+            </div>
           </div>
         </div>
       </nav>
-    </div>
+
+      {/* Spacer to prevent content from hiding under fixed navbar */}
+      <div className="h-16"></div>
+    </>
   );
 }
