@@ -46,7 +46,7 @@ export default function LoginPage() {
               value={form.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className="border border-blue-200 rounded-xl p-3 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 bg-blue-50"
+              className="border border-blue-200 rounded-xl p-3 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 bg-blue-50 text-black"
               required
             />
           </div>
@@ -59,7 +59,7 @@ export default function LoginPage() {
               value={form.password}
               onChange={handleChange}
               placeholder="Enter your password"
-              className="border border-blue-200 rounded-xl p-3 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 bg-blue-50"
+              className="border border-blue-200 rounded-xl p-3 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 bg-blue-50 text-black"
               required
             />
           </div>
