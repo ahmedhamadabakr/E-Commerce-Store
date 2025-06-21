@@ -23,7 +23,7 @@ export async function POST(req) {
       address,
       age,
     } = body;
-    
+
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
         { error: "First name, last name, email, and password are required" },

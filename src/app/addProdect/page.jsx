@@ -44,11 +44,11 @@ export default function AddProduct() {
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
       const userEmail = session.user.email;
-      const adminEmails = ['ahmedhamadabakr77@gmail.com'];
-      const isUserAdmin = adminEmails.includes(userEmail);
+      const adminEmails = ["ahmedhamadabakr77@gmail.com"];
+      const isUserAdmin = adminEmails.includes(userEmail);//اليوز اللى عندك كدا ادمن 
       setIsAdmin(isUserAdmin);
       if (!isUserAdmin) {
-        router.push('/');
+        router.push("/");
       }
     }
   }, [session, status, router]);
@@ -56,14 +56,15 @@ export default function AddProduct() {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "photos" && files) {
-      let selectedFiles = Array.from(files).slice(0, MAX_PHOTOS);
-      setForm((prev) => ({ ...prev, photos: selectedFiles }));
-      setPreviews(selectedFiles.map((file) => URL.createObjectURL(file)));
+      let selectedFiles = Array.from(files).slice(0, MAX_PHOTOS); // to transform image to array
+      setForm((prev) => ({ ...prev, photos: selectedFiles })); //to up data form
+      setPreviews(selectedFiles.map((file) => URL.createObjectURL(file))); //to display after drag
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
+  // to change attribute in classname where drag image
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -76,9 +77,10 @@ export default function AddProduct() {
 
   const handleDrop = (e) => {
     e.preventDefault();
-    e.stopPropagation();
+    e.stopPropagation(); //prevent an event from propagating
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      // Verifies that the user actually downloaded files
       const files = Array.from(e.dataTransfer.files)
         .filter((file) => file.type.startsWith("image/"))
         .slice(0, MAX_PHOTOS - form.photos.length);
@@ -246,7 +248,7 @@ export default function AddProduct() {
               Add a new product to your store inventory
             </p>
             <p className="text-blue-200 text-sm mt-2">
-              Welcome, {session?.user?.email} (Admin)
+              Welcome, {session?.user?.name} (Admin)
             </p>
           </div>
 
@@ -283,7 +285,7 @@ export default function AddProduct() {
                     onChange={handleChange}
                     placeholder="Enter product name"
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
                   />
                 </div>
               </div>
@@ -302,7 +304,7 @@ export default function AddProduct() {
                     placeholder="Describe your product in detail"
                     required
                     rows={4}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none text-black"
                   />
                 </div>
               </div>
@@ -324,7 +326,7 @@ export default function AddProduct() {
                       required
                       min="0"
                       step="0.01"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
                     />
                   </div>
                 </div>
@@ -342,7 +344,7 @@ export default function AddProduct() {
                       placeholder="0"
                       required
                       min="0"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
                     />
                   </div>
                 </div>
@@ -361,7 +363,7 @@ export default function AddProduct() {
                     onChange={handleChange}
                     placeholder="e.g., Electronics, Clothing, Books"
                     required
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
                   />
                 </div>
               </div>

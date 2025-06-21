@@ -6,23 +6,35 @@ import bcrypt from "bcryptjs";
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      name: "Credentials",
-      credentials: {
+      name: "Credentials",// tack tis any name 
+      credentials: {//feild take from user
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const users = await getUsersCollection();
-        const user = await users.findOne({ email: credentials.email });
-        if (!user) throw new Error("No user found");
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) throw new Error("Invalid password");
-        return { id: user._id.toString(), email: user.email, name: user.firstName + ' ' + user.lastName };
+        const user = await users.findOne({ email: credentials.email });//chack is user 
+        if (!user) {
+          throw new Error("No user found");
+        }
+        const isValid = await bcrypt.compare(//chack pass is compare
+          credentials.password,
+          user.password
+        );
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+        return {// return values
+          id: user._id.toString(),
+          email: user.email,
+          name: user.firstName + " " + user.lastName,
+         // role: user.role,
+        };
       },
     }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt",// save data in session
   },
   callbacks: {
     async session({ session, token }) {
@@ -38,4 +50,4 @@ const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 });
 
-export { handler as GET, handler as POST }; 
+export { handler as GET, handler as POST };
