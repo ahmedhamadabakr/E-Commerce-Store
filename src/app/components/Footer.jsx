@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   Facebook,
@@ -10,7 +8,6 @@ import {
   MapPin,
   Heart,
   ShoppingBag,
-  User,
   HelpCircle,
 } from "lucide-react";
 
