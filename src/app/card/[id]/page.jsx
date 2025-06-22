@@ -4,7 +4,7 @@ import ImageSlider from "./ImageSlider";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Heart } from "lucide-react";
+import { ArrowLeft, ShoppingCart, } from "lucide-react";
 import Link from "next/link";
 
 export default function ProductDetailPage({ params }) {
@@ -53,6 +53,7 @@ export default function ProductDetailPage({ params }) {
           title: product.title,
           price: product.price,
           quantity: 1,
+          image: product.photos && product.photos.length > 0 ? product.photos[0] : null,
         });
       }
       

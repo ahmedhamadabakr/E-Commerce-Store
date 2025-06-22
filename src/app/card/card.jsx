@@ -16,11 +16,8 @@ const Card = memo(({ product }) => {
     setImageLoaded(true);
   };
 
-
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-
-      
       <Link
         href={`/card/${product._id}`}
         className="block relative h-48 overflow-hidden group"
@@ -31,16 +28,14 @@ const Card = memo(({ product }) => {
             {!imageLoaded && (
               <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
             )}
-            
+
             <Image
-              src={product.photos[2]}
+              src={product.photos[0]}
               alt={product.title}
               width={400}
               height={300}
               className={`object-cover w-full h-full transition-all duration-300 ${
-                imageLoaded 
-                  ? 'opacity-100 group-hover:scale-105' 
-                  : 'opacity-0'
+                imageLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0"
               }`}
               onLoad={handleImageLoad}
               onError={handleImageError}
@@ -50,7 +45,7 @@ const Card = memo(({ product }) => {
               placeholder="blur"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             />
-            
+
             {/* Overlay with icons */}
             <div className="absolute inset-0  bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
               <div className="opacity-1-0 group-hover:opacity-100 transition-opacity duration-300 flex space-x-4">
@@ -72,7 +67,7 @@ const Card = memo(({ product }) => {
           </div>
         )}
       </Link>
-      
+
       <div className="p-4 flex-1 flex flex-col">
         <Link
           href={`/card/${product._id}`}
@@ -80,21 +75,23 @@ const Card = memo(({ product }) => {
         >
           {product.title}
         </Link>
-        
+
         {product.description && (
           <p className="text-gray-600 mt-2 text-sm line-clamp-2">
             {product.description}
           </p>
         )}
-        
+
         <div className="mt-auto pt-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-2xl font-bold text-blue-600">${product.price}</p>
             {product.originalPrice && product.originalPrice > product.price && (
-              <p className="text-sm text-gray-500 line-through">${product.originalPrice}</p>
+              <p className="text-sm text-gray-500 line-through">
+                ${product.originalPrice}
+              </p>
             )}
           </div>
-          
+
           <div className="flex space-x-2">
             <Link
               href={`/card/${product._id}`}
@@ -102,7 +99,7 @@ const Card = memo(({ product }) => {
             >
               View Details
             </Link>
-            
+
             <button
               className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               aria-label="Add to cart"
@@ -116,6 +113,6 @@ const Card = memo(({ product }) => {
   );
 });
 
-Card.displayName = 'Card';
+Card.displayName = "Card";
 
 export default Card;
