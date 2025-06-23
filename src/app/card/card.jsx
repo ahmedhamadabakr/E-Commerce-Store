@@ -1,20 +1,13 @@
 import Link from "next/link";
-import Image from "next/image";
-import { memo, useState } from "react";
+import { memo } from "react";
 import { ShoppingCart, Eye } from "lucide-react";
+import { OptimizedImage } from "@/utils/imageOptimization";
 
 const Card = memo(({ product }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-
-  const handleImageLoad = () => {
-    setImageLoaded(true);
-  };
-
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoaded(true);
-  };
+  const hasValidImage =
+    product?.photos?.[0] &&
+    typeof product.photos[0] === "string" &&
+    product.photos[0].trim() !== "";
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -22,50 +15,27 @@ const Card = memo(({ product }) => {
         href={`/card/${product._id}`}
         className="block relative h-48 overflow-hidden group"
       >
-        {product.photos && product.photos.length > 0 && !imageError ? (
-          <>
-            {/* Loading placeholder */}
-            {!imageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
-            )}
+        <OptimizedImage
+          src={hasValidImage ? product.photos[0] : null}
+          alt={product.title || "Product image"}
+          width={400}
+          height={300}
+          className="object-cover w-full h-full transition-all duration-300"
+          priority={false}
+          loading="lazy"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+        />
 
-            <Image
-              src={product.photos[0]}
-              alt={product.title}
-              width={400}
-              height={300}
-              className={`object-cover w-full h-full transition-all duration-300 ${
-                imageLoaded ? "opacity-100 group-hover:scale-105" : "opacity-0"
-              }`}
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              priority={false}
-              loading="lazy"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-            />
-
-            {/* Overlay with icons */}
-            <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-              <div className="opacity-1-0 group-hover:opacity-100 transition-opacity duration-300 flex space-x-4">
-                <div className="bg-white rounded-full p-2 shadow-lg">
-                  <Eye className="w-5 h-5 text-gray-700" />
-                </div>
-                <div className="bg-blue-600 rounded-full p-2 shadow-lg">
-                  <ShoppingCart className="w-5 h-5 text-white" />
-                </div>
-              </div>
+        <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+          <div className="opacity-1-0 group-hover:opacity-100 transition-opacity duration-300 flex space-x-4">
+            <div className="bg-white rounded-full p-2 shadow-lg">
+              <Eye className="w-5 h-5 text-gray-700" />
             </div>
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">
-            <div className="text-center">
-              <div className="text-4xl mb-2">📷</div>
-              <p className="text-sm">No Image</p>
+            <div className="bg-blue-600 rounded-full p-2 shadow-lg">
+              <ShoppingCart className="w-5 h-5 text-white" />
             </div>
           </div>
-        )}
+        </div>
       </Link>
 
       <div className="p-4 flex-1 flex flex-col">

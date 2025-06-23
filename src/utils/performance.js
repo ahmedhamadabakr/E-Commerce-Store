@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 
 // Performance monitoring utilities
@@ -115,7 +114,7 @@ class PerformanceMonitor {
 
   // تسجيل المقاييس
   logMetric(name, value) {
-    console.log(`🚀 Performance Metric - ${name}:`, value);
+   
     
     // إرسال البيانات إلى خدمة التحليلات (اختياري)
     if (process.env.NODE_ENV === 'production') {
@@ -150,72 +149,61 @@ class PerformanceMonitor {
   }
 }
 
-// Utility functions for performance optimization
-export const performanceUtils = {
-  // تحسين تحميل الصور
-  preloadImage(src) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = src;
-    });
-  },
-
-  // تحسين تحميل الخطوط
-  preloadFonts(fonts) {
-    if (typeof window !== 'undefined' && 'fonts' in document) {
-      return Promise.all(
-        fonts.map(font => document.fonts.load(font))
-      );
-    }
-    return Promise.resolve();
-  },
-
-  // تحسين التخزين المؤقت
-  cacheData(key, data, ttl = 5 * 60 * 1000) {
-    if (typeof window !== 'undefined') {
-      const item = {
-        data,
-        timestamp: Date.now(),
-        ttl,
-      };
-      localStorage.setItem(key, JSON.stringify(item));
-    }
-  },
-
-  getCachedData(key) {
-    if (typeof window !== 'undefined') {
-      const item = localStorage.getItem(key);
-      if (item) {
-        const parsed = JSON.parse(item);
-        if (Date.now() - parsed.timestamp < parsed.ttl) {
-          return parsed.data;
-        }
-        localStorage.removeItem(key);
-      }
-    }
-    return null;
-  },
-
-  // تحسين التحميل المسبق
-  preloadRoute(path) {
-    if (typeof window !== 'undefined') {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = path;
-      document.head.appendChild(link);
-    }
-  },
-
-  // تحسين التحميل المتأخر
-  lazyLoad(importFn, fallback = null) {
-    return dynamic(importFn, {
-      loading: fallback,
-      ssr: false,
-    });
-  },
-};
+// export const performanceUtils = {
+//   preloadImage(src) {
+//     return new Promise((resolve, reject) => {
+//       const img = new Image();
+//       img.onload = () => resolve(img);
+//       img.onerror = reject;
+//       img.src = src;
+//     });
+//   },
+//   preloadFonts(fonts) {
+//     if (typeof window !== 'undefined' && 'fonts' in document) {
+//       return Promise.all(
+//         fonts.map(font => document.fonts.load(font))
+//       );
+//     }
+//     return Promise.resolve();
+//   },
+//   cacheData(key, data, ttl = 5 * 60 * 1000) {
+//     if (typeof window !== 'undefined') {
+//       const item = {
+//         data,
+//         timestamp: Date.now(),
+//         ttl,
+//       };
+//       localStorage.setItem(key, JSON.stringify(item));
+//     }
+//   },
+//   getCachedData(key) {
+//     if (typeof window !== 'undefined') {
+//       const item = localStorage.getItem(key);
+//       if (item) {
+//         const parsed = JSON.parse(item);
+//         if (Date.now() - parsed.timestamp < parsed.ttl) {
+//           return parsed.data;
+//         }
+//         localStorage.removeItem(key);
+//       }
+//     }
+//     return null;
+//   },
+//   preloadRoute(path) {
+//     if (typeof window !== 'undefined') {
+//       const link = document.createElement('link');
+//       link.rel = 'prefetch';
+//       link.href = path;
+//       document.head.appendChild(link);
+//     }
+//   },
+//   lazyLoad(importFn, fallback = null) {
+//     return dynamic(importFn, {
+//       loading: fallback,
+//       ssr: false,
+//     });
+//   },
+// };
 
 // إنشاء instance واحد
 const performanceMonitor = new PerformanceMonitor();

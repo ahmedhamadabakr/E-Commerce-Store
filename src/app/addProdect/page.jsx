@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   Upload,
@@ -23,6 +24,7 @@ export default function AddProduct() {
   const MAX_PHOTOS = 4;
   const { data: session, status } = useSession();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [form, setForm] = useState({
     title: "",
@@ -162,6 +164,8 @@ export default function AddProduct() {
           photos: [],
         });
         setPreviews([]);
+        queryClient.invalidateQueries(["products"]);
+        router.push("/products");
         setTimeout(() => setMessage(""), 3000);
       } else {
         setMessage(data.error || "Error adding product. Please try again.");

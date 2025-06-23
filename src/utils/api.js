@@ -3,7 +3,7 @@ import axios from "axios";
 // إنشاء instance محسن لـ axios
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "",
-  timeout: 10000, // rThe request will be terminated after 10 seconds if there is no response.
+  timeout: 30000, // The request will be terminated after 30 seconds if there is no response.
   headers: {
     "Content-Type": "application/json",
   },
