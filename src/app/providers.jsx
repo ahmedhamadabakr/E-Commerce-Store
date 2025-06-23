@@ -1,9 +1,7 @@
 "use client";
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState, useEffect } from "react";
-import PerformanceMonitor from "./components/PerformanceMonitor";
 
 export default function Providers({ children }) {
   const [queryClient] = useState(
@@ -15,7 +13,10 @@ export default function Providers({ children }) {
             gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
             retry: (failureCount, error) => {
               // لا تحاول إعادة المحاولة للأخطاء 4xx
-              if (error?.response?.status >= 400 && error?.response?.status < 500) {
+              if (
+                error?.response?.status >= 400 &&
+                error?.response?.status < 500
+              ) {
                 return false;
               }
               return failureCount < 3;
@@ -42,13 +43,7 @@ export default function Providers({ children }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SessionProvider>
-        {children}
-        <PerformanceMonitor />
-        {process.env.NODE_ENV === "development" && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
-      </SessionProvider>
+      <SessionProvider>{children}</SessionProvider>
     </QueryClientProvider>
   );
-} 
+}
