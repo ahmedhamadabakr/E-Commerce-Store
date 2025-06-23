@@ -94,7 +94,7 @@ A professionally optimized e-commerce store with the latest performance techniqu
 
 ### Requirements
 - Node.js 18+
-- npm or yarn
+- npm 
 - MongoDB
 
 ### Installation

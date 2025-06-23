@@ -26,25 +26,28 @@ export default function Footer() {
               <h3 className="text-xl font-bold">E-Commerce Store</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
-              Your trusted destination for quality products. We provide the best
-              shopping experience with fast delivery and excellent customer
+              Your trusted destination for quality products. We provide an exceptional
+              shopping experience with fast delivery and outstanding customer
               service.
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://facebook.com/" target="_blank" rel="noopener noreferrer"
+                aria-label="Facebook"
                 className="text-gray-400 hover:text-blue-400 transition duration-300"
               >
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://twitter.com/" target="_blank" rel="noopener noreferrer"
+                aria-label="Twitter"
                 className="text-gray-400 hover:text-blue-400 transition duration-300"
               >
                 <Twitter className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://instagram.com/" target="_blank" rel="noopener noreferrer"
+                aria-label="Instagram"
                 className="text-gray-400 hover:text-blue-400 transition duration-300"
               >
                 <Instagram className="w-5 h-5" />
@@ -140,11 +143,11 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center text-gray-300 text-sm">
                 <MapPin className="w-4 h-4 mr-2 text-blue-400" />
-                <span>Gad elrab basha, elqusia Assiut</span>
+                <span>Gad Elrab Basha, El Quseia, Assiut, Egypt</span>
               </div>
               <div className="flex items-center text-gray-300 text-sm">
                 <Phone className="w-4 h-4 mr-2 text-blue-400" />
-                <span>+2 01019971564</span>
+                <span>+20 101 997 1564</span>
               </div>
               <div className="flex items-center text-gray-300 text-sm">
                 <Mail className="w-4 h-4 mr-2 text-blue-400" />
@@ -184,8 +187,7 @@ export default function Footer() {
             </div>
           </div>
           <div className="text-center mt-4 text-gray-500 text-xs">
-            Made with Ahmed Bakr{" "}
-            <Heart className="w-3 h-3 inline text-red-500" /> for our customers
+            Made by Ahmed Bakr <Heart className="w-3 h-3 inline text-red-500" /> with ❤️ for our customers
           </div>
         </div>
       </div>
