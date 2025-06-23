@@ -2,7 +2,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { User, Mail, Phone, MapPin, Calendar, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -31,13 +41,13 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    
+
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match");
       setLoading(false);
       return;
     }
-    
+
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters long");
       setLoading(false);
@@ -45,18 +55,19 @@ export default function RegisterPage() {
     }
 
     try {
-      console.log("REGISTER API CALLED");
-      const res = await axios.post("/api/auth/register", { ...form }, {
-        headers: { "Content-Type": "application/json" }
-      });
+      const res = await axios.post(
+        "/api/auth/register",
+        { ...form },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       if (res.data && res.data.success) {
         router.push("/login");
       } else if (res.data && res.data.error) {
         setError(res.data.error);
-        console.log(error);
       } else {
         setError("Registration failed");
-        console.log(error);
       }
     } catch (err) {
       setError(
@@ -73,13 +84,15 @@ export default function RegisterPage() {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center space-x-3">
-            <Link 
+            <Link
               href="/"
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </Link>
-            <h1 className="text-xl font-semibold text-gray-800">Create Account</h1>
+            <h1 className="text-xl font-semibold text-gray-800">
+              Create Account
+            </h1>
           </div>
         </div>
       </div>
@@ -87,7 +100,6 @@ export default function RegisterPage() {
       {/* Main Content */}
       <div className="max-w-md mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-          
           {/* Header */}
           <div className="px-6 py-8 text-center bg-gradient-to-r from-blue-600 to-indigo-600">
             <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -113,7 +125,10 @@ export default function RegisterPage() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="firstName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     First Name
                   </label>
                   <input
@@ -128,7 +143,10 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Last Name
                   </label>
                   <input
@@ -146,7 +164,10 @@ export default function RegisterPage() {
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -166,7 +187,10 @@ export default function RegisterPage() {
 
               {/* Phone */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Phone Number
                 </label>
                 <div className="relative">
@@ -185,7 +209,10 @@ export default function RegisterPage() {
 
               {/* Address */}
               <div>
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="address"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Address
                 </label>
                 <div className="relative">
@@ -205,7 +232,10 @@ export default function RegisterPage() {
               {/* Age and Gender */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="age"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Age
                   </label>
                   <div className="relative">
@@ -224,7 +254,10 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="gender"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Gender
                   </label>
                   <select
@@ -245,7 +278,10 @@ export default function RegisterPage() {
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -265,14 +301,21 @@ export default function RegisterPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -292,7 +335,11 @@ export default function RegisterPage() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -318,7 +365,7 @@ export default function RegisterPage() {
             <div className="mt-6 text-center">
               <p className="text-gray-600 text-sm">
                 Already have an account?{" "}
-                <Link 
+                <Link
                   href="/login"
                   className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
                 >

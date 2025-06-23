@@ -32,14 +32,14 @@ export const metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://your-domain.com'),
+  metadataBase: new URL('https://E-Commerce-Store.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "E-Commerce Store - Your Trusted Shopping Destination",
     description: "Discover quality products at great prices. Fast delivery, excellent customer service, and secure shopping experience.",
-    url: 'https://your-domain.com',
+    url: 'https://E-Commerce-Store.com',
     siteName: 'E-Commerce Store',
     images: [
       {

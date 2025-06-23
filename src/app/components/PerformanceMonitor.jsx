@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from 'react';
-import performanceMonitor from '../../utils/performance';
+import performanceMonitor from '@/utils/performance';
 
 export default function PerformanceMonitor() {
   useEffect(() => {

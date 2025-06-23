@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { productsAPI } from "../../utils/api";
+import { productsAPI } from "@/utils/api";
 import dynamic from "next/dynamic";
 import { Suspense, memo } from "react";
 
@@ -68,14 +68,15 @@ const useProducts = () => {
   return useQuery({
     queryKey: ["products"],
     queryFn: productsAPI.getAll,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5, // refrash after 5 minutes
+    gcTime: 1000 * 60 * 10, // saved in cache for 10 minutes
+    refetchOnWindowFocus: false, //Do not reload the data when the user opens the tab again.
     retry: (failureCount, error) => {
       if (error?.response?.status >= 400 && error?.response?.status < 500) {
+        // if error from user
         return false;
       }
-      return failureCount < 3;
+      return failureCount < 3; // stop try if =3
     },
   });
 };
@@ -154,14 +155,14 @@ export default function ProductsPage() {
 
   // Main Content
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-16 bg-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Products</h1>
 
       {!products || products.length === 0 ? (
         <EmptyState />
       ) : (
         <Suspense fallback={<LoadingState />}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 ">
             {products.map((product) => (
               <Card key={product._id} product={product} />
             ))}

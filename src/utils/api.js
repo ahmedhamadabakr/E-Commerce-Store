@@ -1,11 +1,11 @@
-import axios from 'axios';
+import axios from "axios";
 
 // إنشاء instance محسن لـ axios
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
-  timeout: 10000,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "",
+  timeout: 10000, // rThe request will be terminated after 10 seconds if there is no response.
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -13,7 +13,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // إضافة timestamp للتحكم في التخزين المؤقت
-    if (config.method === 'get') {
+    if (config.method === "get") {
       config.params = {
         ...config.params,
         _t: Date.now(),
@@ -35,7 +35,7 @@ api.interceptors.response.use(
     // معالجة الأخطاء بشكل أفضل
     if (error.response?.status === 401) {
       // إعادة توجيه للصفحة الرئيسية في حالة عدم المصادقة
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
@@ -45,7 +45,7 @@ api.interceptors.response.use(
 export const productsAPI = {
   // الحصول على جميع المنتجات
   getAll: async () => {
-    const response = await api.get('/api/products');
+    const response = await api.get("/api/products");
     return response.data;
   },
 
@@ -57,7 +57,7 @@ export const productsAPI = {
 
   // إنشاء منتج جديد
   create: async (productData) => {
-    const response = await api.post('/api/products', productData);
+    const response = await api.post("/api/products", productData);
     return response.data;
   },
 
@@ -77,12 +77,12 @@ export const productsAPI = {
 // API للمصادقة
 export const authAPI = {
   register: async (userData) => {
-    const response = await api.post('/api/register', userData);
+    const response = await api.post("/api/register", userData);
     return response.data;
   },
 
   login: async (credentials) => {
-    const response = await api.post('/api/auth/signin', credentials);
+    const response = await api.post("/api/auth/signin", credentials);
     return response.data;
   },
 };
@@ -90,12 +90,12 @@ export const authAPI = {
 // API للسلة
 export const cartAPI = {
   getCart: async () => {
-    const response = await api.get('/api/cart');
+    const response = await api.get("/api/cart");
     return response.data;
   },
 
   addToCart: async (productId, quantity = 1) => {
-    const response = await api.post('/api/cart/add', { productId, quantity });
+    const response = await api.post("/api/cart/add", { productId, quantity });
     return response.data;
   },
 
@@ -105,14 +105,16 @@ export const cartAPI = {
   },
 
   updateQuantity: async (productId, quantity) => {
-    const response = await api.put(`/api/cart/update/${productId}`, { quantity });
+    const response = await api.put(`/api/cart/update/${productId}`, {
+      quantity,
+    });
     return response.data;
   },
 
   clearCart: async () => {
-    const response = await api.delete('/api/cart/clear');
+    const response = await api.delete("/api/cart/clear");
     return response.data;
   },
 };
 
-export default api; 
+export default api;

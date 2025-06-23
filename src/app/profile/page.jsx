@@ -1,25 +1,10 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Calendar, 
-  Shield, 
-  ArrowLeft, 
-  Edit,
-  LogOut,
-  ShoppingCart,
-  Package
-} from "lucide-react";
-import { signOut } from "next-auth/react";
+import { User, Mail, Shield, Edit, ShoppingCart, Package } from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   // Redirect if not authenticated
   if (status === "loading") {
@@ -38,9 +23,13 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Access Denied</h2>
-          <p className="text-gray-600 mb-6">You must be logged in to view your profile</p>
-          <Link 
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Access Denied
+          </h2>
+          <p className="text-gray-600 mb-6">
+            You must be logged in to view your profile
+          </p>
+          <Link
             href="/login"
             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
@@ -51,44 +40,14 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link 
-                href="/"
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-gray-600" />
-              </Link>
-              <h1 className="text-xl font-semibold text-gray-800">My Profile</h1>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl pt-6 mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
           {/* Profile Card */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              
               {/* Header */}
               <div className="px-6 py-8 text-center bg-gradient-to-r from-blue-600 to-indigo-600">
                 <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -105,13 +64,14 @@ export default function ProfilePage() {
               {/* Profile Information */}
               <div className="px-6 py-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
                   {/* Email */}
                   <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
                     <Mail className="w-5 h-5 text-blue-600" />
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium text-gray-900">{session.user.email}</p>
+                      <p className="font-medium text-gray-900">
+                        {session.user.email}
+                      </p>
                     </div>
                   </div>
 
@@ -125,7 +85,6 @@ export default function ProfilePage() {
                       </p>
                     </div>
                   </div>
-
                 </div>
 
                 {/* Account Status */}
@@ -133,19 +92,21 @@ export default function ProfilePage() {
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     <div>
-                      <p className="font-medium text-blue-900">Account Status</p>
-                      <p className="text-sm text-blue-700">Active and verified</p>
+                      <p className="font-medium text-blue-900">
+                        Account Status
+                      </p>
+                      <p className="text-sm text-blue-700">
+                        Active and verified
+                      </p>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
 
           {/* Quick Actions */}
           <div className="space-y-6">
-            
             {/* Quick Actions Card */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
@@ -161,7 +122,7 @@ export default function ProfilePage() {
                     View Cart
                   </span>
                 </Link>
-                
+
                 <Link
                   href="/products"
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-green-50 transition-colors group"
@@ -173,31 +134,36 @@ export default function ProfilePage() {
                 </Link>
 
                 {/* Admin Actions */}
-                {session.user.email && 
-                  ['ahmedhamadabakr77@gmail.com'].includes(session.user.email) && (
-                  <Link
-                    href="/addProdect"
-                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group"
-                  >
-                    <Edit className="w-5 h-5 text-purple-600 group-hover:text-purple-700" />
-                    <span className="font-medium text-gray-700 group-hover:text-purple-700">
-                      Add Product
-                    </span>
-                  </Link>
-                )}
+                {session.user.email &&
+                  ["ahmedhamadabakr77@gmail.com"].includes(
+                    session.user.email
+                  ) && (
+                    <Link
+                      href="/addProdect"
+                      className="flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group"
+                    >
+                      <Edit className="w-5 h-5 text-purple-600 group-hover:text-purple-700" />
+                      <span className="font-medium text-gray-700 group-hover:text-purple-700">
+                        Add Product
+                      </span>
+                    </Link>
+                  )}
               </div>
             </div>
 
             {/* Account Info Card */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                <h3 className="font-semibold text-gray-800">Account Information</h3>
+                <h3 className="font-semibold text-gray-800">
+                  Account Information
+                </h3>
               </div>
               <div className="p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Member Since</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {new Date().toLocaleDateString()}
+                    {new Date().toLocaleDateString()//if we  access it must be seend this data from session
+                    }
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -209,17 +175,17 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Account Type</span>
                   <span className="text-sm font-medium text-blue-600">
-                    {session.user.email && 
-                      ['ahmedhamadabakr77@gmail.com'].includes(session.user.email) 
-                      ? 'Administrator' : 'Customer'}
+                    {session.user.email &&
+                    ["ahmedhamadabakr77@gmail.com"].includes(session.user.email)
+                      ? "Administrator"
+                      : "Customer"}
                   </span>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
 // Image optimization utilities
