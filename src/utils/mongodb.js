@@ -7,7 +7,7 @@ let client;
 let clientPromise;
 
 if (!uri) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error("Please define the MONGODB_URI environment variable");
 }
 
 if (!global._mongoClientPromise) {
@@ -27,5 +27,5 @@ export async function getDb() {
 
 export async function getUsersCollection() {
   const db = await getDb();
-  return db.collection('users');
-} 
+  return db.collection("users");
+}
