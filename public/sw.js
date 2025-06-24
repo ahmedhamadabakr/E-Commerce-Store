@@ -1,8 +1,6 @@
 const CACHE_NAME = 'ecommerce-cache-v2';
 const urlsToCache = [
   '/',
-  '/products',
-
 ];
 
 // Install event
