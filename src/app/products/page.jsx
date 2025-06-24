@@ -7,11 +7,11 @@ import { Suspense, memo } from "react";
 // تحميل Card بشكل ديناميكي
 const Card = dynamic(() => import("../card/card"), {
   loading: () => <ProductSkeleton />,
-  ssr: false,
+  ssr: false, // don`t render on server
 });
 
-// تحميل React Window بشكل ديناميكي
 const { FixedSizeGrid: VirtualGrid } = dynamic(() => import("react-window"), {
+  //
   ssr: false,
 });
 

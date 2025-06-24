@@ -4,7 +4,7 @@ import ImageSlider from "./ImageSlider";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, } from "lucide-react";
+import { ArrowLeft, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 
 export default function ProductDetailPage({ params }) {
@@ -34,7 +34,7 @@ export default function ProductDetailPage({ params }) {
         setLoading(false);
       }
     };
-    
+
     if (id) {
       fetchProduct();
     }
@@ -43,23 +43,26 @@ export default function ProductDetailPage({ params }) {
   const handleAddToCart = () => {
     if (typeof window !== "undefined") {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const existingItem = cart.find(item => item.id === product._id);
-      
+      const existingItem = cart.find((item) => item.id === product._id);
+
       if (existingItem) {
-        existingItem.quantity = (existingItem.quantity || 1) + 1;
+        existingItem.quantity = (existingItem.quantity || 1) + 1; // if product in cart increment quantity by 1
       } else {
         cart.push({
           id: product._id,
           title: product.title,
           price: product.price,
           quantity: 1,
-          image: product.photos && product.photos.length > 0 ? product.photos[0] : null,
+          image:
+            product.photos && product.photos.length > 0
+              ? product.photos[0]
+              : null,
         });
       }
-      
+
       localStorage.setItem("cart", JSON.stringify(cart));
       setAdded(true);
-      
+
       // Reset added state after 3 seconds
       setTimeout(() => setAdded(false), 3000);
     }
@@ -81,9 +84,13 @@ export default function ProductDetailPage({ params }) {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || "The product you're looking for doesn't exist."}</p>
-          <Link 
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Product Not Found
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {error || "The product you're looking for doesn't exist."}
+          </p>
+          <Link
             href="/products"
             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
@@ -100,7 +107,7 @@ export default function ProductDetailPage({ params }) {
       <div className="bg-white shadow-sm border-b border-gray-200 lg:hidden">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center space-x-3">
-            <Link 
+            <Link
               href="/products"
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
@@ -116,10 +123,9 @@ export default function ProductDetailPage({ params }) {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          
           {/* Desktop Back Button */}
           <div className="hidden lg:block p-6 border-b border-gray-200">
-            <Link 
+            <Link
               href="/products"
               className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
             >
@@ -139,7 +145,7 @@ export default function ProductDetailPage({ params }) {
               <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
                 {product.title}
               </h1>
-              
+
               <div className="mb-6">
                 <span className="text-3xl lg:text-4xl font-bold text-blue-600">
                   ${product.price}
@@ -149,17 +155,23 @@ export default function ProductDetailPage({ params }) {
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between py-2 border-b border-gray-100">
                   <span className="text-gray-600">Category</span>
-                  <span className="font-semibold text-gray-800">{product.category}</span>
+                  <span className="font-semibold text-gray-800">
+                    {product.category}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-100">
                   <span className="text-gray-600">Available Quantity</span>
-                  <span className="font-semibold text-gray-800">{product.quantity}</span>
+                  <span className="font-semibold text-gray-800">
+                    {product.quantity}
+                  </span>
                 </div>
               </div>
 
               {/* Description Section - Optimized for Mobile */}
               <div className="mb-6 flex-1 min-h-0">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                  Description
+                </h3>
                 <div className="bg-gray-50 rounded-lg p-4 max-h-none overflow-visible">
                   <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm lg:text-base break-words">
                     {product.description}
@@ -187,8 +199,10 @@ export default function ProductDetailPage({ params }) {
                   </>
                 ) : (
                   <div className="text-center">
-                    <p className="text-gray-600 mb-3">You must be logged in to add items to cart</p>
-                    <Link 
+                    <p className="text-gray-600 mb-3">
+                      You must be logged in to add items to cart
+                    </p>
+                    <Link
                       href="/login"
                       className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                     >

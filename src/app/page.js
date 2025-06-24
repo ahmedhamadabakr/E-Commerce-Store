@@ -12,7 +12,7 @@ const ProductsPage = dynamic(() => import("./products/page"), {
       </div>
     </div>
   ),
-  ssr: false, // تحميل على جانب العميل لتحسين الأداء الأولي
+  ssr: false, //Download the best part to improve performance
 });
 
 export default function Home() {

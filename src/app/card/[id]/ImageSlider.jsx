@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
+import { OptimizedImage } from "../../../utils/imageOptimization";
 
 export default function ImageSlider({ photos = [], title = "" }) {
   const [current, setCurrent] = useState(0);
@@ -27,7 +27,7 @@ export default function ImageSlider({ photos = [], title = "" }) {
         >
           <span className="text-2xl">&#8592;</span>
         </button>
-        <Image
+        <OptimizedImage
           src={photos[current]}
           alt={title + " " + (current + 1)}
           width={420}
@@ -53,7 +53,7 @@ export default function ImageSlider({ photos = [], title = "" }) {
                 (idx === current ? "border-blue-500" : "border-transparent")
               }
             >
-              <Image
+              <OptimizedImage
                 src={photo}
                 alt={title + " thumbnail " + (idx + 1)}
                 width={60}

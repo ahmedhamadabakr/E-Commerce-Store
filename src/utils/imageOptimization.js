@@ -167,15 +167,21 @@ export const OptimizedImage = ({
   });
 
   useEffect(() => {
-    if (!src || typeof src !== "string" || src.trim() === "") return;
+    if (!src || typeof src !== "string" || src.trim() === "") {
+      return;
+    }
     const img = new window.Image();
     img.onload = (e) => {
       setImageState({ loading: false, error: false, loaded: true });
-      if (onLoad) onLoad(e);
+      if (onLoad) {
+        onLoad(e);
+      }
     };
     img.onerror = (e) => {
       setImageState({ loading: false, error: true, loaded: false });
-      if (onError) onError(e);
+      if (onError) {
+        onError(e);
+      }
     };
     img.src = src;
   }, [src, onLoad, onError]);
@@ -213,7 +219,10 @@ export const OptimizedImage = ({
   }
 
   return (
-    <div className={`relative ${className}`} style={{ width: width || 400, height: height || 300 }}>
+    <div
+      className={`relative ${className}`}
+      style={{ width: width || 400, height: height || 300 }}
+    >
       {imageState.loading && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       )}
@@ -225,7 +234,11 @@ export const OptimizedImage = ({
         className={`transition-opacity duration-300  ${
           imageState.loaded ? "opacity-100" : "opacity-0"
         }`}
-        style={{ width: '100%', height: 'auto', aspectRatio: width && height ? `${width} / ${height}` : undefined }}
+        style={{
+          width: "100%",
+          height: "auto",
+          aspectRatio: width && height ? `${width} / ${height}` : undefined,
+        }}
         {...props}
       />
     </div>
