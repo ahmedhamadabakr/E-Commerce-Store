@@ -66,9 +66,15 @@ A professionally optimized e-commerce store with the latest performance techniqu
 ### ⚡ Performance & Optimization
 - **Dynamic Imports** for code splitting and faster load times.
 - **Image Optimization** with Next.js Image and WebP/AVIF.
-- **Service Worker** for offline support and caching.
+- **Service Worker** for caching the homepage and improving load speed (no offline support).
 - **Core Web Vitals** monitoring.
 - **Virtualized lists** for efficient rendering of large product sets.
+
+> **Note:** The Service Worker only caches the homepage (`/`). Offline support is not enabled by default. If you see errors related to missing files in the cache, make sure all URLs in the cache list exist in the `public` folder.
+
+> **Image Warning:** If you see a warning about image width/height in the console, make sure to always provide both `width` and `height` props to images, or use CSS to maintain the aspect ratio. This does not affect functionality.
+
+> **404 Image Errors:** If you see 404 errors for images like `screenshot-wide.png`, ensure you are not referencing them in your manifest or HTML. You can safely ignore these if not used in your project.
 
 ### 🛠️ API Endpoints
 - `/api/products` - Product management (add, fetch, etc.).
