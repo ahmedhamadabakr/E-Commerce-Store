@@ -2,6 +2,7 @@ const CACHE_NAME = 'ecommerce-cache-v2';
 const urlsToCache = [
   '/',
   '/products',
+
 ];
 
 // Install event
@@ -18,32 +19,34 @@ self.addEventListener('install', (event) => {
 
 // Fetch event
 self.addEventListener('fetch', (event) => {
+  if (
+    event.request.method !== 'GET' ||
+    event.request.url.startsWith('chrome-extension://') ||
+    !event.request.url.startsWith('http') ||
+    event.request.url.includes('/api/') ||
+    event.request.url.includes('devtools')
+  ) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
         if (response) {
           return response;
         }
-        
-        return fetch(event.request).then(
-          (response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
+        return fetch(event.request)
+          .then((networkResponse) => {
+            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+              return networkResponse;
             }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
+            const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME)
               .then((cache) => {
                 cache.put(event.request, responseToCache);
               });
-
-            return response;
-          }
-        );
+            return networkResponse;
+          });
       })
   );
 });
@@ -57,6 +60,7 @@ self.addEventListener('activate', (event) => {
           if (cacheName !== CACHE_NAME) {
             return caches.delete(cacheName);
           }
+          return null;
         })
       );
     })
@@ -72,7 +76,6 @@ self.addEventListener('sync', (event) => {
 
 async function doBackgroundSync() {
   try {
-    // Sync any pending requests when back online
     const requests = await getPendingRequests();
     for (const request of requests) {
       await fetch(request.url, request.options);
@@ -83,7 +86,6 @@ async function doBackgroundSync() {
 }
 
 async function getPendingRequests() {
-  // This would typically come from IndexedDB
   return [];
 }
 

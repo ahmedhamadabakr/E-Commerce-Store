@@ -3,6 +3,8 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -26,13 +28,17 @@ export default function LoginPage() {
     if (res.error) {
       setError(res.error);
     } else {
-      router.push("/");
+      toast.success("You have successfully logged in!");
+      setTimeout(() => {
+        router.push("/");
+      }, 500);
     }
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
+      <ToastContainer position="top-center" autoClose={3000} />
       <div className="w-full max-w-md p-8 sm:p-10 bg-white rounded-3xl shadow-2xl border border-blue-100 flex flex-col gap-8">
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-4xl font-extrabold text-blue-800 tracking-tight drop-shadow-sm">

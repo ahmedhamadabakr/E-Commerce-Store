@@ -213,19 +213,19 @@ export const OptimizedImage = ({
   }
 
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
+    <div className={`relative ${className}`} style={{ width: width || 400, height: height || 300 }}>
       {imageState.loading && (
         <div className="absolute inset-0 bg-gray-200 animate-pulse" />
       )}
       <Image
         src={src}
         alt={alt || "Product image"}
-        width={width}
-        height={height}
+        width={width || 400}
+        height={height || 300}
         className={`transition-opacity duration-300  ${
           imageState.loaded ? "opacity-100" : "opacity-0"
         }`}
-        style={{ width: '100%', height: 'auto' }}
+        style={{ width: '100%', height: 'auto', aspectRatio: width && height ? `${width} / ${height}` : undefined }}
         {...props}
       />
     </div>

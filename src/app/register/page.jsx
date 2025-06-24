@@ -14,6 +14,8 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -63,7 +65,12 @@ export default function RegisterPage() {
         }
       );
       if (res.data && res.data.success) {
-        router.push("/login");
+        toast.success(
+          "Your account has been successfully registered! You can now log in."
+        );
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500);
       } else if (res.data && res.data.error) {
         setError(res.data.error);
       } else {
@@ -80,6 +87,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <ToastContainer position="top-center" autoClose={3000} />
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-md mx-auto px-4 py-4">
