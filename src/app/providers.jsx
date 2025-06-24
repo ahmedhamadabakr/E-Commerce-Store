@@ -9,10 +9,9 @@ export default function Providers({ children }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 1000 * 60 * 5, // 5 minutes
+            staleTime: 1000 * 60 * 5, // data update after 5 minutes
             gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
             retry: (failureCount, error) => {
-              // لا تحاول إعادة المحاولة للأخطاء 4xx
               if (
                 error?.response?.status >= 400 &&
                 error?.response?.status < 500
