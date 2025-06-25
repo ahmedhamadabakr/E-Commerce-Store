@@ -11,7 +11,7 @@ import bcrypt from "bcryptjs";
 
 // Create authOptions inline since it's not exported from the NextAuth route
 const authOptions = {
-  providers: [  
+  providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -22,9 +22,16 @@ const authOptions = {
         const users = await getUsersCollection();
         const user = await users.findOne({ email: credentials.email });
         if (!user) throw new Error("No user found");
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
         if (!isValid) throw new Error("Invalid password");
-        return { id: user._id.toString(), email: user.email, name: user.firstName + ' ' + user.lastName };
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.firstName + " " + user.lastName,
+        };
       },
     }),
   ],
@@ -54,7 +61,7 @@ cloudinary.config({
 export async function POST(req) {
   // Admin authorization
   const session = await getServerSession(authOptions);
-  const adminEmails = ['ahmedhamadabakr77@gmail.com'];
+  const adminEmails = ["ahmedhamadabakr77@gmail.com"];
   const userEmail = session?.user?.email;
   const isAdmin = session && adminEmails.includes(userEmail);
   if (!isAdmin) {
@@ -65,7 +72,8 @@ export async function POST(req) {
     let photoUrls = [];
     const contentType = req.headers.get("content-type"); //to get type of data json or formdata
 
-    if (contentType && contentType.includes("multipart/form-data")) {///?????????????
+    if (contentType && contentType.includes("multipart/form-data")) {
+      ///?????????????
       // Parse FormData
       const formData = await req.formData();
 
@@ -78,13 +86,16 @@ export async function POST(req) {
       // رفع الصور إلى Cloudinary
       for (const file of photos) {
         if (typeof file === "object" && file.arrayBuffer) {
-          const buffer = Buffer.from(await file.arrayBuffer());// بحول الصورة ل bufferعلشان تترفع استريم 
+          const buffer = Buffer.from(await file.arrayBuffer()); // بحول الصورة ل bufferعلشان تترفع استريم
+           
           const uploadRes = await cloudinary.uploader.upload_stream(
             {
               folder: "products",
             },
             (error, result) => {
-              if (error) throw error;
+              if (error) {
+                throw error;
+              }
               photoUrls.push(result.secure_url);
             }
           );
@@ -105,7 +116,8 @@ export async function POST(req) {
           });
         }
       }
-    } else {// if json can used it dirictly 
+    } else {
+      // if json can used it dirictly
       // JSON
       data = await req.json();
       photoUrls = data.photos || [];

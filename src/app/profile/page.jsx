@@ -43,7 +43,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Main Content */}
-      <div className="max-w-4xl pt-6 mx-auto px-4 py-8">
+      <div className="max-w-4xl mt-12 mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Profile Card */}
           <div className="lg:col-span-2">
@@ -162,7 +162,8 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Member Since</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {new Date().toLocaleDateString()//if we  access it must be seend this data from session
+                    {
+                      new Date().toLocaleDateString() //if we  access it must be seend this data from session
                     }
                   </span>
                 </div>
