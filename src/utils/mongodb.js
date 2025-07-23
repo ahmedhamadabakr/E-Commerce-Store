@@ -10,6 +10,9 @@ if (!uri) {
   throw new Error("Please define the MONGODB_URI environment variable");
 }
 
+
+
+
 if (!global._mongoClientPromise) {
   client = new MongoClient(uri);
   global._mongoClientPromise = client.connect();
