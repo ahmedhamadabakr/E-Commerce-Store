@@ -1,7 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { User, Mail, Shield, Edit, ShoppingCart, Package } from "lucide-react";
+import { User, Mail, Shield, Edit, ShoppingCart, Package, ExternalLinkIcon, Minimize, Minimize2, UserMinus, UserMinus2 } from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -130,6 +130,27 @@ export default function ProfilePage() {
                   <Package className="w-5 h-5 text-green-600 group-hover:text-green-700" />
                   <span className="font-medium text-gray-700 group-hover:text-green-700">
                     Browse Products
+                  </span>
+                </Link>
+
+                {/* زر تعديل الملف الشخصي */}
+                <Link
+                  href="/ModifyPersonalInformation"
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-yellow-50 transition-colors group"
+                >
+                  <Edit className="w-5 h-5 text-yellow-600 group-hover:text-yellow-700" />
+                  <span className="font-medium text-gray-700 group-hover:text-yellow-700">
+                    update profile
+                  </span>
+                </Link>
+
+                <Link
+                  href=""
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-yellow-50 transition-colors group"
+                >
+                  <UserMinus2 className="w-5 h-5 text-yellow-600 group-hover:text-yellow-700" />
+                  <span className="font-medium text-gray-700 group-hover:text-yellow-700">
+                    drop account
                   </span>
                 </Link>
 

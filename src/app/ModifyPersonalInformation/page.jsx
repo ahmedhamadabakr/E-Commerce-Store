@@ -1,23 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useState,  } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
   User,
-  Mail,
   Phone,
   MapPin,
-  Calendar,
   Lock,
   Eye,
   EyeOff,
-  ArrowLeft,
+  Mail,
+  Shield,
 } from "lucide-react";
-import Link from "next/link";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSession } from "next-auth/react";
+import React from "react";
+import Link from "next/link";
 
-export default function RegisterPage() {
+export default function ModifyPersonalInformationPage() {
+  const { data: session, status } = useSession();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -35,6 +37,25 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
+  // جلب بيانات المستخدم عند التحميل
+  React.useEffect(() => {
+    if (status === "authenticated" && session?.user?.email) {
+      axios
+        .get(`/api/auth/Update?email=${session.user.email}`)
+        .then((res) => {
+          if (res.data && res.data.user) {
+            setForm((f) => ({
+              ...f,
+              ...res.data.user,
+              password: "",
+              confirmPassword: "",
+            }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [status, session]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -44,21 +65,16 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (form.password.length < 6) {
+    // إذا كان المستخدم يريد تغيير كلمة المرور، يجب أن تكون 6 أحرف على الأقل
+    if (form.password && form.password.length < 6) {
       setError("Password must be at least 6 characters long");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await axios.post(
-        "/api/auth/register",
+      const res = await axios.put(
+        "/api/auth/Update",
         { ...form },
         {
           headers: { "Content-Type": "application/json" },
@@ -66,24 +82,53 @@ export default function RegisterPage() {
       );
       if (res.data && res.data.success) {
         toast.success(
-          "Your account has been successfully registered! You can now log in."
+          "Your account has been successfully update! You can now log in."
         );
-        setTimeout(() => {
-          router.push("/");
-        }, 1500);
       } else if (res.data && res.data.error) {
         setError(res.data.error);
       } else {
-        setError("Registration failed");
+        setError("Update failed");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.error || err.message || "Registration failed"
-      );
+      setError(err.response?.data?.error || err.message || "Update failed");
     } finally {
       setLoading(false);
     }
   };
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+
+  if (status !== "authenticated") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Access Denied
+          </h2>
+          <p className="text-gray-600 mb-6">
+            You must be logged in to view your profile
+          </p>
+          <Link
+            href="/login"
+            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+          >
+            Sign In
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-16">
@@ -98,11 +143,8 @@ export default function RegisterPage() {
               <User className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">
-              Join Our Community
+              Update your account
             </h2>
-            <p className="text-blue-100 text-sm">
-              Create your account to start shopping
-            </p>
           </div>
 
           {/* Form */}
@@ -173,17 +215,17 @@ export default function RegisterPage() {
                     placeholder="john@example.com"
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
                     required
+                    disabled
                   />
                 </div>
               </div>
-
               {/* Phone */}
               <div>
                 <label
                   htmlFor="phone"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Phone Number
+                  Update Phone Number
                 </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -205,7 +247,7 @@ export default function RegisterPage() {
                   htmlFor="address"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Address
+                  Update Address
                 </label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -221,59 +263,13 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Age and Gender */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label
-                    htmlFor="age"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Age
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      id="age"
-                      name="age"
-                      type="number"
-                      value={form.age}
-                      onChange={handleChange}
-                      placeholder="25"
-                      min="13"
-                      max="120"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Gender
-                  </label>
-                  <select
-                    id="gender"
-                    name="gender"
-                    value={form.gender}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
-                    required
-                  >
-                    <option value="">Select</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
-              </div>
-
               {/* Password */}
               <div>
                 <label
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Password
+                  Update Password (اختياري)
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -283,9 +279,8 @@ export default function RegisterPage() {
                     type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={handleChange}
-                    placeholder="Enter your password"
+                    placeholder="Enter new password if you want to change it"
                     className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
-                    required
                   />
                   <button
                     type="button"
@@ -319,7 +314,6 @@ export default function RegisterPage() {
                     onChange={handleChange}
                     placeholder="Confirm your password"
                     className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors text-black"
-                    required
                   />
                   <button
                     type="button"
@@ -344,26 +338,13 @@ export default function RegisterPage() {
                 {loading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating Account...</span>
+                    <span>Update Account...</span>
                   </div>
                 ) : (
-                  "Create Account"
+                  "Update Account"
                 )}
               </button>
             </form>
-
-            {/* Login Link */}
-            <div className="mt-6 text-center">
-              <p className="text-gray-600 text-sm">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
-                >
-                  Sign In
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
       </div>

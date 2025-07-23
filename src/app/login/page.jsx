@@ -37,8 +37,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 py-16">
+      
       <ToastContainer position="top-center" autoClose={3000} />
+      
       <div className="w-full max-w-md p-8 sm:p-10 bg-white rounded-3xl shadow-2xl border border-blue-100 flex flex-col gap-8">
         <div className="flex flex-col items-center gap-2">
           <h2 className="text-4xl font-extrabold text-blue-800 tracking-tight drop-shadow-sm">
@@ -46,6 +48,7 @@ export default function LoginPage() {
           </h2>
           <p className="text-gray-500 text-lg">Sign in to your account</p>
         </div>
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           {error && (
             <div className="text-red-600 text-center font-semibold bg-red-50 border border-red-200 rounded-lg py-2">
