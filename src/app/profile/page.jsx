@@ -6,7 +6,7 @@ import { User, Mail, Shield, Edit, ShoppingCart, Package, ExternalLinkIcon, Mini
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
-  const [currentDate, setCurrentDate] = useState("");
+  const [currentDate, setCurrentDate] = useState(null);
 
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString());
@@ -189,13 +189,13 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Member Since</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {currentDate}
+                    {currentDate || 'Loading...'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Last Login</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {currentDate}
+                    {currentDate || 'Loading...'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
