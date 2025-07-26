@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import {
   Facebook,
   Twitter,
@@ -12,7 +13,11 @@ import {
 } from "lucide-react";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState('');
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -163,7 +168,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-gray-400 text-sm">
-              © {currentYear} Ahmed Bakr. All rights reserved.
+              © {currentYear || '...'} Ahmed Bakr. All rights reserved.
             </div>
             <div className="flex items-center space-x-6 text-sm">
               <Link

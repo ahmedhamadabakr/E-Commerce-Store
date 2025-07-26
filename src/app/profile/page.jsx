@@ -1,10 +1,16 @@
 "use client";
 import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { User, Mail, Shield, Edit, ShoppingCart, Package, ExternalLinkIcon, Minimize, Minimize2, UserMinus, UserMinus2 } from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
+  const [currentDate, setCurrentDate] = useState(null);
+
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString());
+  }, []);
 
   // Redirect if not authenticated
   if (status === "loading") {
@@ -183,15 +189,13 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Member Since</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {
-                      new Date().toLocaleDateString() //if we  access it must be seend this data from session
-                    }
+                    {currentDate || 'Loading...'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Last Login</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {new Date().toLocaleDateString()}
+                    {currentDate || 'Loading...'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
