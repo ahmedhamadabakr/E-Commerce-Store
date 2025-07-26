@@ -4,20 +4,17 @@ import { getDb } from "@/utils/mongodb";
 import { ObjectId } from "mongodb";
 
 export async function POST(req) {
-  console.log("API /api/cart/add called");
   try {
     const session = await getServerSession(authOptions);
-    console.log("Session:", session);
     if (!session) {
-      console.log("No session, unauthorized");
       return new Response("Unauthorized", { status: 401 });
     }
     const { productId, quantity = 1 } = await req.json();
-    console.log("productId:", productId, "quantity:", quantity);
 
     if (!productId) {
-      console.log("No productId provided");
-      return new Response(JSON.stringify({ error: "Product ID is required" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Product ID is required" }), {
+        status: 400,
+      });
     }
     if (typeof quantity !== "number" || quantity < 1) {
       return new Response(
@@ -27,80 +24,93 @@ export async function POST(req) {
     }
 
     const db = await getDb();
-    console.log("db connected");
 
     // Get current cart
-    const currentCart = await db.collection("carts").findOne({ userEmail: session.user.email });
-    console.log("currentCart:", currentCart);
+    const currentCart = await db
+      .collection("carts")
+      .findOne({ userEmail: session.user.email });
     const currentItems = currentCart?.items || [];
-    console.log("currentItems before add:", currentItems);
     // Check if product already exists in cart
-    const existingItemIndex = currentItems.findIndex(item => String(item.id) === String(productId));
-    console.log("existingItemIndex:", existingItemIndex);
+    const existingItemIndex = currentItems.findIndex(
+      (item) => String(item.id) === String(productId)
+    );
 
     let product;
     try {
-      product = await db.collection("products").findOne({ _id: new ObjectId(productId) });
-      console.log("product from db:", product);
+      product = await db
+        .collection("products")
+        .findOne({ _id: new ObjectId(productId) });
     } catch (err) {
-      console.error("Error fetching product from db:", err);
-      return new Response(JSON.stringify({ error: "Invalid product ID format" }), { status: 400 });
+      return new Response(
+        JSON.stringify({ error: "Invalid product ID format" }),
+        { status: 400 }
+      );
     }
     if (!product) {
-      console.log("Product not found for id:", productId);
-      return new Response(JSON.stringify({ error: "Product not found" }), { status: 404 });
+      return new Response(JSON.stringify({ error: "Product not found" }), {
+        status: 404,
+      });
     }
     const productQuantity = Number(product.quantity);
-    console.log("productQuantity (converted):", productQuantity, "type:", typeof product.quantity);
     let newQuantity;
     if (existingItemIndex !== -1) {
       // المنتج موجود بالفعل في السلة
-      const currentCartQuantity = Number(currentItems[existingItemIndex].quantity) || 1;
+      const currentCartQuantity =
+        Number(currentItems[existingItemIndex].quantity) || 1;
       newQuantity = currentCartQuantity + Number(quantity);
-      console.log("currentCartQuantity:", currentCartQuantity, "newQuantity:", newQuantity);
-      if (!isNaN(productQuantity) && newQuantity > productQuantity + currentCartQuantity) {
-        console.log("Not enough stock. Requested:", newQuantity, "Available:", productQuantity + currentCartQuantity);
+      if (
+        !isNaN(productQuantity) &&
+        newQuantity > productQuantity + currentCartQuantity
+      ) {
         return new Response(
-          JSON.stringify({ error: "Not enough stock available", available: productQuantity + currentCartQuantity }),
+          JSON.stringify({
+            error: "Not enough stock available",
+            available: productQuantity + currentCartQuantity,
+          }),
           { status: 400 }
         );
       }
       // خصم الكمية المضافة فقط من المخزون
       const newStockQuantity = productQuantity - Number(quantity);
-      await db.collection("products").updateOne(
-        { _id: new ObjectId(productId) },
-        { $set: { quantity: newStockQuantity.toString() } }
-      );
+      await db
+        .collection("products")
+        .updateOne(
+          { _id: new ObjectId(productId) },
+          { $set: { quantity: newStockQuantity.toString() } }
+        );
       currentItems[existingItemIndex].quantity = newQuantity;
-      console.log("Updated quantity for existing item and deducted from stock");
     } else {
       // المنتج غير موجود في السلة
       newQuantity = Number(quantity);
-      console.log("newQuantity (new item):", newQuantity);
       if (!isNaN(productQuantity) && newQuantity > productQuantity) {
-        console.log("Not enough stock for new item. Requested:", newQuantity, "Available:", productQuantity);
         return new Response(
-          JSON.stringify({ error: "Not enough stock available", available: productQuantity }),
+          JSON.stringify({
+            error: "Not enough stock available",
+            available: productQuantity,
+          }),
           { status: 400 }
         );
       }
       // خصم الكمية من المخزون
       const newStockQuantity = productQuantity - Number(quantity);
-      await db.collection("products").updateOne(
-        { _id: new ObjectId(productId) },
-        { $set: { quantity: newStockQuantity.toString() } }
-      );
+      await db
+        .collection("products")
+        .updateOne(
+          { _id: new ObjectId(productId) },
+          { $set: { quantity: newStockQuantity.toString() } }
+        );
       // Add new product to cart
       currentItems.push({
         id: product._id.toString(),
         title: product.title,
         price: product.price,
         quantity: newQuantity,
-        image: product.photos && product.photos.length > 0 ? product.photos[0] : null,
+        image:
+          product.photos && product.photos.length > 0
+            ? product.photos[0]
+            : null,
       });
-      console.log("Added new product to cart and deducted from stock");
     }
-    console.log("currentItems after add:", currentItems);
 
     // Update cart in database
     let updatedCart;
@@ -113,21 +123,30 @@ export async function POST(req) {
             updatedAt: new Date(),
           },
         },
-        { upsert: true, returnDocument: 'after' }
+        { upsert: true, returnDocument: "after" }
       );
     } catch (err) {
-      console.error("Error updating cart:", err);
-      return new Response(JSON.stringify({ error: "Database error while updating cart" }), { status: 500 });
+      return new Response(
+        JSON.stringify({ error: "Database error while updating cart" }),
+        { status: 500 }
+      );
     }
 
     // إذا لم يتم إرجاع السلة بعد التحديث، أرجع العناصر مباشرة
     if (!updatedCart.value) {
-      return new Response(JSON.stringify({ items: currentItems }), { status: 200 });
+      return new Response(JSON.stringify({ items: currentItems }), {
+        status: 200,
+      });
     }
 
     return new Response(JSON.stringify(updatedCart.value), { status: 200 });
   } catch (error) {
-    console.error("Error in /api/cart/add:", error);
-    return new Response(JSON.stringify({ error: "Failed to add to cart", details: error.message }), { status: 500 });
+    return new Response(
+      JSON.stringify({
+        error: "Failed to add to cart",
+        details: error.message,
+      }),
+      { status: 500 }
+    );
   }
-} 
+}

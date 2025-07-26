@@ -25,7 +25,6 @@ export default function CartPage() {
     try {
       await updateQuantity(productId, newQuantity);
     } catch (error) {
-      console.error("Error updating quantity:", error);
       
       // تحقق من نوع الخطأ وعرض رسالة مناسبة
       let errorMessage = "Failed to update quantity. Please try again.";
@@ -62,7 +61,6 @@ export default function CartPage() {
         showConfirmButton: false,
       });
     } catch (error) {
-      console.error("Error removing item:", error);
       
       // تحقق من نوع الخطأ وعرض رسالة مناسبة
       let errorMessage = "Failed to remove item. Please try again.";
@@ -99,7 +97,7 @@ export default function CartPage() {
         confirmButtonText: "Continue Shopping",
       });
     } catch (error) {
-      console.error("Error during checkout:", error);
+
       
       // تحقق من نوع الخطأ وعرض رسالة مناسبة
       let errorMessage = "Failed to process checkout. Please try again.";
