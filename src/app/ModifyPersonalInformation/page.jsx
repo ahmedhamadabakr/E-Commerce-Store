@@ -37,7 +37,6 @@ export default function ModifyPersonalInformationPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
-  // جلب بيانات المستخدم عند التحميل
   React.useEffect(() => {
     if (status === "authenticated" && session?.user?.email) {
       axios
@@ -65,7 +64,6 @@ export default function ModifyPersonalInformationPage() {
     setLoading(true);
     setError("");
 
-    // إذا كان المستخدم يريد تغيير كلمة المرور، يجب أن تكون 6 أحرف على الأقل
     if (form.password && form.password.length < 6) {
       setError("Password must be at least 6 characters long");
       setLoading(false);

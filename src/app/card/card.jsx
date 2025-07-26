@@ -1,13 +1,62 @@
+"use client";
 import Link from "next/link";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { ShoppingCart, Eye } from "lucide-react";
 import { OptimizedImage } from "@/utils/imageOptimization";
+import { useSession } from "next-auth/react";
+import { useCart } from "@/utils/useCart";
+import Swal from "sweetalert2";
 
 const Card = memo(({ product }) => {
+  const { status } = useSession();
+  const { addToCart, isInCart } = useCart();
+  const [addingToCart, setAddingToCart] = useState(false);
+  
   const hasValidImage =
     product?.photos?.[0] &&
     typeof product.photos[0] === "string" &&
     product.photos[0].trim() !== "";
+
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (status !== "authenticated") {
+      Swal.fire({
+        title: "Authentication Required",
+        text: "Please sign in to add items to your cart",
+        icon: "info",
+        confirmButtonText: "Sign In",
+      });
+      return;
+    }
+
+    if (addingToCart) return;
+
+    try {
+      setAddingToCart(true);
+      await addToCart(product._id, 1);
+      
+      Swal.fire({
+        title: "Added to Cart!",
+        text: "Product has been added to your cart successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Failed to add product to cart. Please try again.",
+        icon: "error",
+      });
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const isProductInCart = isInCart(product._id);
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
@@ -71,12 +120,28 @@ const Card = memo(({ product }) => {
             </Link>
 
             <button
-              className="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              onClick={handleAddToCart}
+              disabled={addingToCart || isProductInCart}
+              className={`p-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                isProductInCart
+                  ? "bg-green-600 text-white cursor-not-allowed"
+                  : addingToCart
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500"
+              }`}
               aria-label="Add to cart"
             >
               <ShoppingCart className="w-5 h-5" />
             </button>
           </div>
+          
+          {isProductInCart && (
+            <div className="mt-2 text-center">
+              <span className="text-green-600 text-sm font-medium">
+                ✓ In Cart
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

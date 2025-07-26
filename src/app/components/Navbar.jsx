@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, ShoppingCart, User, Home, Info, Package } from "lucide-react";
+import { useCart } from "@/utils/useCart";
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -11,6 +12,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { getItemCount } = useCart();
 
   // Handle scroll effect
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function Navbar() {
       setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll); //chosen step to clear storage if reload page
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close mobile menu when route changes
@@ -122,37 +124,40 @@ export default function Navbar() {
               {status === "authenticated" && (
                 <Link
                   href="/cart"
-                  className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+                  className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors relative"
                 >
                   <ShoppingCart className="w-4 h-4" />
                   <span>Cart</span>
+                  {getItemCount() > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                      {getItemCount() > 99 ? '99+' : getItemCount()}
+                    </span>
+                  )}
                 </Link>
               )}
 
               <button
                 onClick={handleAuthClick}
-                className={`flex items-center space-x-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   status === "authenticated"
                     ? "bg-red-600 hover:bg-red-700 text-white"
                     : "bg-blue-600 hover:bg-blue-700 text-white"
                 }`}
               >
-                <User className="w-4 h-4" />
-                <span>{status === "authenticated" ? "Logout" : "Login"}</span>
+                {status === "authenticated" ? "Logout" : "Login"}
               </button>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile menu button */}
             <div className="lg:hidden">
               <button
                 onClick={toggleMobileMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-colors"
-                aria-expanded="false"
+                className="p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
               >
                 {isMobileMenuOpen ? (
-                  <X className="block h-6 w-6" />
+                  <X className="w-6 h-6" />
                 ) : (
-                  <Menu className="block h-6 w-6" />
+                  <Menu className="w-6 h-6" />
                 )}
               </button>
             </div>
@@ -160,31 +165,10 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <div
-          className={`lg:hidden transition-transform duration-300 ease-in-out ${
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-        >
-          <div className="fixed top-0 left-0 h-full w-80 max-w-[80vw] bg-white shadow-xl z-50">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <Link
-                href="/"
-                className="flex items-center space-x-2 text-blue-600 font-bold text-lg"
-                onClick={toggleMobileMenu}
-              >
-                <Package className="w-6 h-6" />
-                <span>Ecommerce</span>
-              </Link>
-              <button
-                onClick={toggleMobileMenu}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-
+        {isMobileMenuOpen && (
+          <div className="lg:hidden bg-white border-t border-gray-200 shadow-lg">
             <div className="px-4 py-6 space-y-4">
-              {/* Navigation Links */}
+              {/* Mobile Navigation */}
               <div className="space-y-2">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Navigation
@@ -207,7 +191,8 @@ export default function Navbar() {
                     </Link>
                   );
                 })}
-                {/* Add Product button for admin (mobile) */}
+
+                {/* Add Product button for admin */}
                 {isAdmin && (
                   <Link
                     href="/addProdect"
@@ -234,10 +219,15 @@ export default function Navbar() {
                     <Link
                       href="/cart"
                       onClick={toggleMobileMenu}
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors"
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors relative"
                     >
                       <ShoppingCart className="w-5 h-5" />
                       <span>Shopping Cart</span>
+                      {getItemCount() > 0 && (
+                        <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                          {getItemCount() > 99 ? '99+' : getItemCount()}
+                        </span>
+                      )}
                     </Link>
 
                     <button
@@ -264,20 +254,9 @@ export default function Navbar() {
                   </button>
                 )}
               </div>
-
-              {/* User Info */}
-              {status === "authenticated" && session?.user && (
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium text-gray-500">
-                      Welcome, {session.user.name || session.user.email}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
-        </div>
+        )}
       </nav>
     </>
   );

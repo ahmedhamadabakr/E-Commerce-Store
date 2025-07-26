@@ -1,56 +1,128 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import Swal from "sweetalert2";
+import { useCart } from "@/utils/useCart";
 
 export default function CartPage() {
-  const { status } = useSession();
-  const [cart, setCart] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const { 
+    cart, 
+    loading, 
+    updateQuantity, 
+    removeFromCart, 
+    clearCart, 
+    getTotalPrice 
+  } = useCart();
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("cart");
-      setCart(stored ? JSON.parse(stored) : []);
-      setLoading(false);
-    }
-  }, []);
-
-  const updateCart = (newCart) => {
-    setCart(newCart);
-    localStorage.setItem("cart", JSON.stringify(newCart));
-  };
-
-  const updateQuantity = (index, newQuantity) => {
+  const handleUpdateQuantity = async (productId, newQuantity) => {
     if (newQuantity < 1) {
       return;
     }
-    const newCart = [...cart];
-    newCart[index].quantity = newQuantity;
-    updateCart(newCart);
+    
+    try {
+      await updateQuantity(productId, newQuantity);
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      
+      // تحقق من نوع الخطأ وعرض رسالة مناسبة
+      let errorMessage = "Failed to update quantity. Please try again.";
+      let errorTitle = "Error";
+      
+      if (error.response && error.response.data && error.response.data.error) {
+        const serverError = error.response.data.error;
+        if (serverError.includes("Not enough stock")) {
+          errorTitle = "Insufficient Stock";
+          errorMessage = serverError;
+        } else if (serverError.includes("Product not found")) {
+          errorTitle = "Product Not Found";
+          errorMessage = "This product is no longer available.";
+        }
+      }
+      
+      Swal.fire({
+        title: errorTitle,
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
-  const removeItem = (index) => {
-    const newCart = cart.filter((_, i) => i !== index);
-    updateCart(newCart);
+  const handleRemoveItem = async (productId) => {
+    try {
+      await removeFromCart(productId);
+      Swal.fire({
+        title: "Removed from Cart",
+        text: "Product has been removed from your cart successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error removing item:", error);
+      
+      // تحقق من نوع الخطأ وعرض رسالة مناسبة
+      let errorMessage = "Failed to remove item. Please try again.";
+      let errorTitle = "Error";
+      
+      if (error.response && error.response.data && error.response.data.error) {
+        const serverError = error.response.data.error;
+        if (serverError.includes("Product not found in cart")) {
+          errorTitle = "Item Not Found";
+          errorMessage = "This item is no longer in your cart.";
+        } else if (serverError.includes("Cart not found")) {
+          errorTitle = "Cart Error";
+          errorMessage = "Your cart could not be found.";
+        }
+      }
+      
+      Swal.fire({
+        title: errorTitle,
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
-  const calculateTotal = () => {
-    return cart.reduce(
-      (total, item) => total + item.price * (item.quantity || 1),
-      0
-    );
-  };
-
-  const handleCheckout = () => {
-    Swal.fire({
-      title: "Your request has been fulfilled.",
-      icon: "success",
-      draggable: true,
-    });
+  const handleCheckout = async () => {
+    try {
+      await clearCart();
+      
+      Swal.fire({
+        title: "Order Placed Successfully!",
+        text: "Your order has been placed and your cart has been cleared.",
+        icon: "success",
+        confirmButtonText: "Continue Shopping",
+      });
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      
+      // تحقق من نوع الخطأ وعرض رسالة مناسبة
+      let errorMessage = "Failed to process checkout. Please try again.";
+      let errorTitle = "Checkout Error";
+      
+      if (error.response && error.response.data && error.response.data.error) {
+        const serverError = error.response.data.error;
+        if (serverError.includes("Cart not found")) {
+          errorTitle = "Cart Error";
+          errorMessage = "Your cart could not be found.";
+        } else if (serverError.includes("Failed to clear cart")) {
+          errorTitle = "Clear Cart Error";
+          errorMessage = "Failed to clear your cart. Please try again.";
+        }
+      }
+      
+      Swal.fire({
+        title: errorTitle,
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   };
 
   if (status === "loading" || loading) {
@@ -102,7 +174,7 @@ export default function CartPage() {
           <div className="w-20"></div>
         </div>
 
-        {cart.length === 0 ? (
+        {cart.items.length === 0 ? (
           /* Empty Cart */
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
             <div className="text-8xl mb-6">🛒</div>
@@ -126,11 +198,11 @@ export default function CartPage() {
               <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="p-6 border-b border-gray-200">
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Cart Items ({cart.length})
+                    Cart Items ({cart.items.length})
                   </h2>
                 </div>
                 <div className="divide-y divide-gray-200">
-                  {cart.map((item, index) => (
+                  {cart.items.map((item, index) => (
                     <div
                       key={index}
                       className="p-6 flex items-center space-x-4"
@@ -164,7 +236,7 @@ export default function CartPage() {
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() =>
-                            updateQuantity(index, (item.quantity || 1) - 1)
+                            handleUpdateQuantity(item.id, (item.quantity || 1) - 1)
                           }
                           className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition duration-200 text-black"
                         >
@@ -175,7 +247,7 @@ export default function CartPage() {
                         </span>
                         <button
                           onClick={() =>
-                            updateQuantity(index, (item.quantity || 1) + 1)
+                            handleUpdateQuantity(item.id, (item.quantity || 1) + 1)
                           }
                           className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition duration-200 text-black"
                         >
@@ -192,7 +264,7 @@ export default function CartPage() {
 
                       {/* Remove Button */}
                       <button
-                        onClick={() => removeItem(index)}
+                        onClick={() => handleRemoveItem(item.id)}
                         className="text-red-500 hover:text-red-700 transition duration-200"
                         title="Remove item"
                       >
@@ -213,8 +285,8 @@ export default function CartPage() {
 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-gray-600">
-                    <span>Subtotal ({cart.length} items)</span>
-                    <span>${calculateTotal().toFixed(2)}</span>
+                    <span>Subtotal ({cart.items.length} items)</span>
+                    <span>${getTotalPrice().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
@@ -222,12 +294,12 @@ export default function CartPage() {
                   </div>
                   <div className="flex justify-between text-gray-600">
                     <span>Tax</span>
-                    <span>${(calculateTotal() * 0.1).toFixed(2)}</span>
+                    <span>${(getTotalPrice() * 0.1).toFixed(2)}</span>
                   </div>
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-semibold text-gray-800">
                       <span>Total</span>
-                      <span>${(calculateTotal() * 1.1).toFixed(2)}</span>
+                      <span>${(getTotalPrice() * 1.1).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>

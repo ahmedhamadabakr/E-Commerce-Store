@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import Swal from "sweetalert2";
+import { useCart } from "@/utils/useCart";
 
 export default function ProductDetailPage({ params }) {
   const { id } = use(params);
@@ -14,6 +16,7 @@ export default function ProductDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState("");
+  const { addToCart, isInCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -40,31 +43,58 @@ export default function ProductDetailPage({ params }) {
     }
   }, [id]);
 
-  const handleAddToCart = () => {
-    if (typeof window !== "undefined") {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const existingItem = cart.find((item) => item.id === product._id);
+  const handleAddToCart = async () => {
+    if (status !== "authenticated") {
+      Swal.fire({
+        title: "Authentication Required",
+        text: "Please sign in to add items to your cart",
+        icon: "info",
+        confirmButtonText: "Sign In",
+      });
+      return;
+    }
 
-      if (existingItem) {
-        existingItem.quantity = (existingItem.quantity || 1) + 1; // if product in cart increment quantity by 1
-      } else {
-        cart.push({
-          id: product._id,
-          title: product.title,
-          price: product.price,
-          quantity: 1,
-          image:
-            product.photos && product.photos.length > 0
-              ? product.photos[0]
-              : null,
-        });
-      }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
+    try {
+      await addToCart(product._id, 1);
+      
       setAdded(true);
+      Swal.fire({
+        title: "Added to Cart!",
+        text: "Product has been added to your cart successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
       // Reset added state after 3 seconds
       setTimeout(() => setAdded(false), 3000);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      
+      // تحقق من نوع الخطأ وعرض رسالة مناسبة
+      let errorMessage = "Failed to add product to cart. Please try again.";
+      let errorTitle = "Error";
+      
+      if (error.response && error.response.data && error.response.data.error) {
+        const serverError = error.response.data.error;
+        if (serverError.includes("Not enough stock")) {
+          errorTitle = "Insufficient Stock";
+          errorMessage = serverError;
+        } else if (serverError.includes("Product not found")) {
+          errorTitle = "Product Not Found";
+          errorMessage = "This product is no longer available.";
+        } else if (serverError.includes("Invalid product ID")) {
+          errorTitle = "Invalid Product";
+          errorMessage = "This product is not valid.";
+        }
+      }
+      
+      Swal.fire({
+        title: errorTitle,
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   };
 
@@ -102,115 +132,117 @@ export default function ProductDetailPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Mobile Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200 lg:hidden">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center space-x-3">
-            <Link
-              href="/products"
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
-            </Link>
-            <h1 className="text-lg font-semibold text-gray-800 truncate">
-              {product.title}
-            </h1>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 pt-12">
+        {/* Back Button */}
+        <div className="mb-8">
+          <Link
+            href="/products"
+            className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back to Products
+          </Link>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* Desktop Back Button */}
-          <div className="hidden lg:block p-6 border-b border-gray-200">
-            <Link
-              href="/products"
-              className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Products</span>
-            </Link>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Product Images */}
+          <div className="space-y-4">
+            <ImageSlider photos={product.photos || []} />
           </div>
 
-          <div className="flex flex-col lg:flex-row">
-            {/* Images Section */}
-            <div className="lg:w-1/2 p-6">
-              <ImageSlider photos={product.photos} title={product.title} />
-            </div>
-
-            {/* Details Section */}
-            <div className="lg:w-1/2 p-6 lg:p-8 flex flex-col min-h-0">
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+          {/* Product Details */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">
                 {product.title}
               </h1>
-
-              <div className="mb-6">
-                <span className="text-3xl lg:text-4xl font-bold text-blue-600">
+              <div className="flex items-center space-x-4 mb-4">
+                <span className="text-3xl font-bold text-blue-600">
                   ${product.price}
                 </span>
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-xl text-gray-500 line-through">
+                    ${product.originalPrice}
+                  </span>
+                )}
               </div>
+            </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Category</span>
-                  <span className="font-semibold text-gray-800">
+            {/* Product Info */}
+            <div className="space-y-4">
+              {product.category && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-600 font-medium">Category:</span>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                     {product.category}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Available Quantity</span>
-                  <span className="font-semibold text-gray-800">
-                    {product.quantity}
+              )}
+
+              {product.quantity !== undefined && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-600 font-medium">Stock:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    product.quantity > 0 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {product.quantity > 0 ? `${product.quantity} available` : 'Out of stock'}
                   </span>
                 </div>
-              </div>
+              )}
 
-              {/* Description Section - Optimized for Mobile */}
-              <div className="mb-6 flex-1 min-h-0">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  Description
-                </h3>
-                <div className="bg-gray-50 rounded-lg p-4 max-h-none overflow-visible">
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-line text-sm lg:text-base break-words">
+              {product.description && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Description
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
                     {product.description}
-                  </div>
+                  </p>
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* Action Buttons - Fixed at Bottom */}
-              <div className="space-y-3 mt-auto pt-4 border-t border-gray-100">
-                {status === "authenticated" ? (
-                  <>
-                    <button
-                      onClick={handleAddToCart}
-                      disabled={added}
-                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-colors flex items-center justify-center space-x-2"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      <span>{added ? "Added to Cart!" : "Add to Cart"}</span>
-                    </button>
-                    {added && (
-                      <div className="text-center text-green-600 text-sm font-medium">
-                        ✓ Product added to your cart successfully!
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-gray-600 mb-3">
-                      You must be logged in to add items to cart
-                    </p>
-                    <Link
-                      href="/login"
-                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                    >
-                      Sign In
-                    </Link>
-                  </div>
-                )}
-              </div>
+            {/* Action Buttons - Fixed at Bottom */}
+            <div className="space-y-3 mt-auto pt-4 border-t border-gray-100">
+              {status === "authenticated" ? (
+                <>
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={added || (product.quantity !== undefined && product.quantity <= 0)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-green-600 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                    <span>
+                      {added 
+                        ? "Added to Cart!" 
+                        : (product.quantity !== undefined && product.quantity <= 0) 
+                          ? "Out of Stock" 
+                          : "Add to Cart"
+                      }
+                    </span>
+                  </button>
+                  {added && (
+                    <div className="text-center text-green-600 text-sm font-medium">
+                      ✓ Product added to your cart successfully!
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center">
+                  <p className="text-gray-600 mb-3">
+                    You must be logged in to add items to cart
+                  </p>
+                  <Link
+                    href="/login"
+                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
