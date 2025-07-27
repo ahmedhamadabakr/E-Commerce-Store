@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUsersCollection } from "@/utils/mongodb";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   try {
@@ -24,8 +25,16 @@ export async function POST(req) {
       );
     }
 
+    // ✅ إنشاء التوكن
+    const token = jwt.sign(
+      { userId: user._id.toString() }, // تأكد من تحويل الـ ObjectId ل string
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" } // مدة الصلاحية
+    );
+
     return NextResponse.json({
       message: "Login successful",
+      token, // ✅ أضفنا التوكن هنا
       user: {
         id: user._id,
         email: user.email,
@@ -35,6 +44,9 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error("Login error:", error);
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
