@@ -68,9 +68,9 @@ const useProducts = () => {
   return useQuery({
     queryKey: ["products"],
     queryFn: productsAPI.getAll,
-    staleTime: 1000 * 60 * 5, // refrash after 5 minutes
-    gcTime: 1000 * 60 * 10, // saved in cache for 10 minutes
-    refetchOnWindowFocus: false, //Do not reload the data when the user opens the tab again.
+    // staleTime: 1000 * 60 * 5, // refrash after 5 minutes
+    // gcTime: 1000 * 60 * 10, // saved in cache for 10 minutes
+    // refetchOnWindowFocus: false, //Do not reload the data when the user opens the tab again.
     retry: (failureCount, error) => {
       if (error?.response?.status >= 400 && error?.response?.status < 500) {
         // if error from user

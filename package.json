@@ -26,6 +26,7 @@
     "react-toastify": "^11.0.5",
     "react-window": "^1.8.9",
     "react-window-infinite-loader": "^1.0.9",
+    "streamifier": "^0.1.1",
     "sweetalert2": "^11.22.0"
   },
   "devDependencies": {

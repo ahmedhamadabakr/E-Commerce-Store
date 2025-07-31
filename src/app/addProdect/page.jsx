@@ -46,7 +46,7 @@ export default function AddProduct() {
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
       const userEmail = session.user.email;
-      const adminEmails = ["ahmedhamadabakr77@gmail.com"];
+      const adminEmails = ["ahmedhamadabakr77@gmail.com","f.mumen@drwazaq8.com"];
       const isUserAdmin = adminEmails.includes(userEmail);//اليوز اللى عندك كدا ادمن 
       setIsAdmin(isUserAdmin);
       if (!isUserAdmin) {

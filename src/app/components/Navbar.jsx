@@ -107,14 +107,14 @@ export default function Navbar() {
               {/* Add Product button for admin */}
               {isAdmin && (
                 <Link
-                  href="/addProdect"
+                  href="/admin/products"
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname === "/addProdect"
+                    pathname === "/admin/products"
                       ? "text-green-700 bg-green-50"
                       : "text-green-700 hover:text-green-800 hover:bg-green-50"
                   }`}
                 >
-                  <span className="font-bold">+ Add Product</span>
+                  <span className="font-bold">Admin</span>
                 </Link>
               )}
             </div>
@@ -130,7 +130,7 @@ export default function Navbar() {
                   <span>Cart</span>
                   {getItemCount() > 0 && (
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                      {getItemCount() > 99 ? '99+' : getItemCount()}
+                      {getItemCount() > 99 ? "99+" : getItemCount()}
                     </span>
                   )}
                 </Link>
@@ -225,7 +225,7 @@ export default function Navbar() {
                       <span>Shopping Cart</span>
                       {getItemCount() > 0 && (
                         <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                          {getItemCount() > 99 ? '99+' : getItemCount()}
+                          {getItemCount() > 99 ? "99+" : getItemCount()}
                         </span>
                       )}
                     </Link>
