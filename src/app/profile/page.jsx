@@ -1,16 +1,78 @@
 "use client";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { User, Mail, Shield, Edit, ShoppingCart, Package, ExternalLinkIcon, Minimize, Minimize2, UserMinus, UserMinus2 } from "lucide-react";
+import axios from "axios";
+import {
+  User,
+  Mail,
+  Shield,
+  Edit,
+  ShoppingCart,
+  Package,
+  ExternalLinkIcon,
+  Minimize,
+  Minimize2,
+  UserMinus,
+  UserMinus2,
+  AlertTriangle,
+  Trash2,
+  X,
+} from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const [currentDate, setCurrentDate] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(1);
+  const [confirmationText, setConfirmationText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString());
   }, []);
+
+  const handleDeleteAccount = async () => {
+    if (confirmationText !== "DELETE") {
+      setDeleteError("يجب كتابة 'DELETE' بالضبط للتأكيد");
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError("");
+
+    try {
+      const response = await axios.delete("/api/user/delete-account", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.data.success) {
+        // تسجيل خروج المستخدم
+        await signOut({ redirect: false });
+
+        // إعادة توجيه لصفحة رئيسية مع رسالة
+        window.location.href = "/?message=account-deleted";
+      } else {
+        setDeleteError(response.data.error || "حدث خطأ أثناء حذف الحساب");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      setDeleteError("فشل في حذف الحساب. حاول مرة أخرى.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const resetDeleteModal = () => {
+    setShowDeleteModal(false);
+    setDeleteStep(1);
+    setConfirmationText("");
+    setDeleteError("");
+    setIsDeleting(false);
+  };
 
   // Redirect if not authenticated
   if (status === "loading") {
@@ -150,15 +212,15 @@ export default function ProfilePage() {
                   </span>
                 </Link>
 
-                <Link
-                  href=""
-                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-yellow-50 transition-colors group"
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 transition-colors group"
                 >
-                  <UserMinus2 className="w-5 h-5 text-yellow-600 group-hover:text-yellow-700" />
-                  <span className="font-medium text-gray-700 group-hover:text-yellow-700">
-                    drop account
+                  <Trash2 className="w-5 h-5 text-red-600 group-hover:text-red-700" />
+                  <span className="font-medium text-gray-700 group-hover:text-red-700">
+                    Delete Account
                   </span>
-                </Link>
+                </button>
 
                 {/* Admin Actions */}
                 {session.user.email &&
@@ -189,13 +251,13 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Member Since</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {currentDate || 'Loading...'}
+                    {currentDate || "Loading..."}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">Last Login</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {currentDate || 'Loading...'}
+                    {currentDate || "Loading..."}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -212,6 +274,117 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Delete Account
+                  </h3>
+                </div>
+                <button
+                  onClick={resetDeleteModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {deleteStep === 1 && (
+                <>
+                  {/* Step 1: Warning */}
+                  <div className="mb-6">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                      <h4 className="font-semibold text-red-800 mb-2">
+                        ⚠️ This action cannot be undone
+                      </h4>
+                      <p className="text-red-700 text-sm">
+                        Deleting your account will permanently remove:
+                      </p>
+                      <ul className="list-disc list-inside text-red-700 text-sm mt-2 space-y-1">
+                        <li>Your profile information</li>
+                        <li>Your shopping cart</li>
+                        <li>Your order history</li>
+                        <li>All account data</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={resetDeleteModal}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => setDeleteStep(2)}
+                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                      Continue
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {deleteStep === 2 && (
+                <>
+                  {/* Step 2: Confirmation */}
+                  <div className="mb-6">
+                    <p className="text-gray-700 mb-4">
+                      To confirm deletion, type <strong>"DELETE"</strong> in the
+                      box below:
+                    </p>
+                    <input
+                      type="text"
+                      value={confirmationText}
+                      onChange={(e) => setConfirmationText(e.target.value)}
+                      placeholder="Type DELETE here"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-black"
+                      autoFocus
+                    />
+                    {deleteError && (
+                      <p className="text-red-600 text-sm mt-2">{deleteError}</p>
+                    )}
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setDeleteStep(1)}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                      disabled={isDeleting}
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={isDeleting || confirmationText !== "DELETE"}
+                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      {isDeleting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Deleting...
+                        </>
+                      ) : (
+                        "Delete Account"
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
