@@ -5,27 +5,33 @@ import { ObjectId } from "mongodb";
 export async function DELETE(req, { params }) {
   try {
     const mobileAuth = await verifyMobileToken(req);
-    
+
     if (!mobileAuth) {
-      return new Response(JSON.stringify({ 
-        error: "Mobile authentication required",
-        code: "MOBILE_AUTH_REQUIRED" 
-      }), { 
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Mobile authentication required",
+          code: "MOBILE_AUTH_REQUIRED",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
-    
+
     const { productId } = params;
-    
+
     if (!productId) {
-      return new Response(JSON.stringify({ 
-        error: "Product ID is required",
-        code: "MISSING_PRODUCT_ID"
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Product ID is required",
+          code: "MISSING_PRODUCT_ID",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     const db = await getDb();
@@ -33,43 +39,51 @@ export async function DELETE(req, { params }) {
 
     // الحصول على السلة الحالية
     const currentCart = await db.collection("carts").findOne({ userEmail });
-    
+
     if (!currentCart || !currentCart.items) {
-      return new Response(JSON.stringify({
-        error: "Cart not found or empty",
-        code: "CART_NOT_FOUND"
-      }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Cart not found or empty",
+          code: "CART_NOT_FOUND",
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     const currentItems = currentCart.items || [];
-    
+
     // البحث عن المنتج في السلة
     const itemIndex = currentItems.findIndex(
       (item) => String(item.id) === String(productId)
     );
 
     if (itemIndex === -1) {
-      return new Response(JSON.stringify({
-        error: "Product not found in cart",
-        code: "PRODUCT_NOT_IN_CART"
-      }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Product not found in cart",
+          code: "PRODUCT_NOT_IN_CART",
+        }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
     // إرجاع الكمية إلى المخزون
     const removedItem = currentItems[itemIndex];
     try {
-      await db.collection("products").updateOne(
-        { _id: new ObjectId(productId) },
-        { $inc: { quantity: removedItem.quantity } }
-      );
+      await db
+        .collection("products")
+        .updateOne(
+          { _id: new ObjectId(productId) },
+          { $inc: { quantity: removedItem.quantity } }
+        );
     } catch (err) {
-      console.warn('Could not restore product quantity:', err);
+      console.warn("Could not restore product quantity:", err);
     }
 
     // حذف المنتج من السلة
@@ -82,9 +96,9 @@ export async function DELETE(req, { params }) {
         $set: {
           items: currentItems,
           updatedAt: new Date(),
-          platform: 'mobile',
-          lastAction: 'remove_from_cart'
-        }
+          platform: "mobile",
+          lastAction: "remove_from_cart",
+        },
       },
       { returnDocument: "after" }
     );
@@ -94,25 +108,27 @@ export async function DELETE(req, { params }) {
       message: "Product removed from cart successfully",
       items: currentItems,
       cart: updatedCart.value,
-      platform: 'mobile'
+      platform: "mobile",
     };
 
     return new Response(JSON.stringify(responseData), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
-    console.error('Mobile cart remove error:', error);
-    
-    return new Response(JSON.stringify({
-      error: "Failed to remove product from cart",
-      code: "INTERNAL_ERROR",
-      details: error.message,
-      platform: 'mobile'
-    }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error("Mobile cart remove error:", error);
+
+    return new Response(
+      JSON.stringify({
+        error: "Failed to remove product from cart",
+        code: "INTERNAL_ERROR",
+        details: error.message,
+        platform: "mobile",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
