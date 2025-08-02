@@ -224,7 +224,7 @@ export default function ProfilePage() {
 
                 {/* Admin Actions */}
                 {session.user.email &&
-                  ["ahmedhamadabakr77@gmail.com"].includes(
+                  ["ahmedhamadabakr77@gmail.com","f.mumen@drwazaq8.com"].includes(
                     session.user.email
                   ) && (
                     <Link
@@ -264,7 +264,7 @@ export default function ProfilePage() {
                   <span className="text-sm text-gray-500">Account Type</span>
                   <span className="text-sm font-medium text-blue-600">
                     {session.user.email &&
-                    ["ahmedhamadabakr77@gmail.com"].includes(session.user.email)
+                    ["ahmedhamadabakr77@gmail.com","f.mumen@drwazaq8.com"].includes(session.user.email)
                       ? "Administrator"
                       : "Customer"}
                   </span>

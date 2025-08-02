@@ -55,7 +55,7 @@ export default function Navbar() {
   const isAdmin =
     status === "authenticated" &&
     session?.user?.email &&
-    ["ahmedhamadabakr77@gmail.com"].includes(session.user.email);
+    ["ahmedhamadabakr77@gmail.com","f.mumen@drwazaq8.com"].includes(session.user.email);
 
   return (
     <>
